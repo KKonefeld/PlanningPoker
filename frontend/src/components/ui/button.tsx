@@ -13,6 +13,8 @@ const buttonVariants = cva(
       variant: {
         default:
           "bg-accent text-white hover:bg-accent2 dark:bg-slate-50 dark:text-slate-900 dark:hover:bg-slate-50/90",
+        combobox:
+          "bg-background2 hover:bg-background3 border border-slate-200 w-full justify-between !px-3",
       },
       size: {
         default: "h-10 px-4 py-2",
