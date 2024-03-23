@@ -1,7 +1,7 @@
 const Logo: React.FC = () => {
   return (
     <svg
-      className="h-full aspect-squre"
+      className="aspect-squre h-full"
       // width="675"
       // height="675"
       viewBox="0 0 675 675"

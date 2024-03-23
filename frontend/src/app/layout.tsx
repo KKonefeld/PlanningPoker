@@ -16,7 +16,9 @@ export default function RootLayout({
     <html lang="en">
       <body className="bg-background">
         <Navbar />
-        {children}
+        <div className="container mx-auto flex flex-col items-center pt-24 text-white">
+          {children}
+        </div>
       </body>
     </html>
   );
