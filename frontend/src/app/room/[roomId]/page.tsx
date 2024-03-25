@@ -1,4 +1,5 @@
 "use client";
+import Deck from "@/components/ui/deck";
 import { useRoomDetailsQuery } from "@/queries/room.queries";
 import React from "react";
 
@@ -14,6 +15,7 @@ export default function Room({
   const { data, isLoading, isError, error } = useRoomDetailsQuery(
     parseInt(roomId),
   );
+  console.log(data);
 
   if (isLoading) {
     return (
@@ -40,6 +42,7 @@ export default function Room({
   return (
     <div>
       <h1 className="mb-8">{`Room ${params.roomId}`}</h1>
+      <Deck votingSystem={data.votingSystem}></Deck>
     </div>
   );
 }
