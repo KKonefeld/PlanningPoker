@@ -31,10 +31,19 @@ import {
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
+import { VOTING_SYSTEM } from "@/model/user";
 
 const votingSystems = [
-  { label: "Fibonacci (0, 1, 2, 3, 5, 8, ...)", value: "fib" },
-  { label: "T-shirts (XS, S, M, L, XL, ...)", value: "tshirt" },
+  {
+    system: VOTING_SYSTEM.FIBONACCI,
+    label: "Fibonacci (0, 1, 2, 3, 5, 8, ...)",
+    value: "fib",
+  },
+  {
+    system: VOTING_SYSTEM.TSHIRT,
+    label: "T-shirts (XS, S, M, L, XL, ...)",
+    value: "tshirt",
+  },
 ] as const;
 
 const formSchema = z.object({
