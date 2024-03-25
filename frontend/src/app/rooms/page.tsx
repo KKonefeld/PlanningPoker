@@ -1,0 +1,42 @@
+"use client";
+
+import { Button } from "@/components/ui/button";
+import { RoomCard } from "@/components/ui/roomCard";
+import { useRoomsListQuery } from "@/queries/room.queries";
+
+export default function Rooms() {
+  const { data, isLoading, isError, error } = useRoomsListQuery();
+
+  if (isLoading) {
+    return (
+      <div>
+        <h1>Loading...</h1>
+      </div>
+    );
+  }
+  if (isError) {
+    return (
+      <div>
+        <h1>Error: {error.message}</h1>
+      </div>
+    );
+  }
+  if (!data) {
+    return (
+      <div>
+        <h1>No rooms found</h1>
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      <h1 className="mb-8">Rooms</h1>
+      <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3">
+        {data.map((room) => (
+          <RoomCard key={room.id} room={room} />
+        ))}
+      </div>
+    </div>
+  );
+}

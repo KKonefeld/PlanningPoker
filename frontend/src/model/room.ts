@@ -8,4 +8,6 @@ export interface Room {
   createdAt?: string;
   votingSystem: VOTING_SYSTEM;
   owner: Participant;
+  currentPlayersCount?: number;
+  participants: Participant[];
 }
