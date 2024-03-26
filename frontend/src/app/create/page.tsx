@@ -54,6 +54,11 @@ const formSchema = z.object({
   votingSystem: z.string({
     required_error: "Please select a voting system",
   }),
+
+  roomCapacity: z.coerce
+    .number()
+    .min(2, { message: "Room capacity must be at least 2" })
+    .max(20, { message: "Room capacity must be at most 20" }),
 });
 
 export default function CreateForm() {
@@ -64,6 +69,7 @@ export default function CreateForm() {
     defaultValues: {
       username: "",
       votingSystem: "fib",
+      roomCapacity: 10,
     },
   });
 
@@ -87,6 +93,22 @@ export default function CreateForm() {
                 <Input placeholder="Example name" {...field} />
               </FormControl>
               <FormDescription>This is room's public name.</FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="roomCapacity"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Room Capacity</FormLabel>
+              <FormControl>
+                <Input placeholder="Example: 10" type="number" {...field} />
+              </FormControl>
+              <FormDescription>
+                This is maximum number of participants.
+              </FormDescription>
               <FormMessage />
             </FormItem>
           )}
