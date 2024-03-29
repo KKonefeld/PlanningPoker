@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using PlanningPoker.Models;
-using PlanningPoker.Services;
+using PlanningPoker.Services.RoomService;
 
 namespace PlanningPoker.Controllers
 {
@@ -15,17 +15,23 @@ namespace PlanningPoker.Controllers
             _roomService = roomService;
         }
 
-        [HttpGet("{roomId}")]
-        public async Task<IActionResult> Get([FromRoute] int roomId)
-        {
-            var result = await _roomService.GetById(roomId);
-            return Ok(result);
-        }
-
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
             var result = await _roomService.GetAll();
+            return Ok(result);
+        }
+
+        [HttpGet("{roomId}")]
+        public async Task<IActionResult> Get([FromRoute] int roomId)
+        {
+            var result = await _roomService.GetById(roomId);
+
+            if (result == null)
+            {
+                return NotFound("Room with given id was not found");
+            }
+
             return Ok(result);
         }
 

@@ -2,7 +2,7 @@
 using PlanningPoker.Models;
 using PlanningPoker.Persistence;
 
-namespace PlanningPoker.Services
+namespace PlanningPoker.Services.RoomService
 {
     public class RoomService : IRoomService
     {
@@ -13,14 +13,14 @@ namespace PlanningPoker.Services
             _dbContext = dbContext;
         }
 
-        public async Task<Room> GetById(int id)
-        {
-            return await _dbContext.Rooms.FindAsync(id);
-        }
-
         public async Task<IEnumerable<Room>> GetAll()
         {
             return await _dbContext.Rooms.ToListAsync();
+        }
+
+        public async Task<Room?> GetById(int id)
+        {
+            return await _dbContext.Rooms.FindAsync(id);
         }
 
         public async Task<int> Create(Room room)

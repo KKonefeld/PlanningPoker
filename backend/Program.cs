@@ -1,6 +1,6 @@
 
 using PlanningPoker.Persistence;
-using PlanningPoker.Services;
+using PlanningPoker.Services.RoomService;
 
 namespace PlanningPoker
 {
