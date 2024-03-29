@@ -13,6 +13,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\PlanningPoker.Domain.Room\PlanningPoker.Domain.Room.csproj" />
+    <ProjectReference Include="..\PlanningPoker.Infrastructure.Persistence\PlanningPoker.Infrastructure.Persistence.csproj" />
   </ItemGroup>
 
 </Project>
