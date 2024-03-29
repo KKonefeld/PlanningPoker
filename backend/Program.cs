@@ -1,5 +1,8 @@
 
-namespace PlanningPoker.API
+using PlanningPoker.Persistence;
+using PlanningPoker.Services;
+
+namespace PlanningPoker
 {
     public class Program
     {
@@ -8,6 +11,8 @@ namespace PlanningPoker.API
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
+            builder.Services.AddScoped<IRoomService, RoomService>();
+            builder.Services.AddDbContext<PlanningPokerDbContext>();
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();

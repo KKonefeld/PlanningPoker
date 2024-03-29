@@ -1,20 +1,25 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using PlanningPoker.Domain.Room.Models;
+using PlanningPoker.Models;
 
-namespace PlanningPoker.Infrastructure.Persistence
+namespace PlanningPoker.Persistence
 {
+
     public class PlanningPokerDbContext : DbContext
     {
         public DbSet<Room> Rooms { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            // optionsBuilder.UseProvider(connectionString);
+            optionsBuilder.UseNpgsql("");
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            
+            modelBuilder.Entity<Room>()
+                .HasMany(r => r.Participants)
+                .WithOne()
+                .HasForeignKey(p => p.Id);
         }
     }
+
 }

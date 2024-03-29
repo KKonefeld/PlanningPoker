@@ -1,4 +1,4 @@
-﻿namespace PlanningPoker.Domain.Room.Models
+﻿namespace PlanningPoker.Models
 {
     public enum VotingSystem
     {
