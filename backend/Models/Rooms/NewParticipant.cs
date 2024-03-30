@@ -1,8 +1,7 @@
-﻿namespace PlanningPoker.Models
+﻿namespace PlanningPoker.Models.Rooms
 {
-    public class Participant
+    public class NewParticipant
     {
-        public int Id { get; set; }
         public string Name { get; set; }
         public string? Choice { get; set; }
     }

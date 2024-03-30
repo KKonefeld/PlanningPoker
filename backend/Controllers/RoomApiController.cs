@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using PlanningPoker.Models;
+using PlanningPoker.Models.Rooms;
 using PlanningPoker.Services.RoomService;
 
 namespace PlanningPoker.Controllers
@@ -28,41 +28,57 @@ namespace PlanningPoker.Controllers
             var result = await _roomService.GetById(roomId);
 
             if (result == null)
-            {
                 return NotFound("Room with given id was not found");
-            }
 
             return Ok(result);
         }
 
         [HttpPost("create")]
-        public async Task<IActionResult> Create([FromBody] Room room)
+        public async Task<IActionResult> Create([FromBody] NewRoom room)
         {
             if (room == null)
-            {
                 return BadRequest("Invalid room object");
-            }
 
             var result = await _roomService.Create(room);
             return Ok(result);
         }
 
-        [HttpPut("update")]
-        public async Task<IActionResult> Update([FromBody] Room room)
-        {
-            if (room == null)
-            {
-                return BadRequest("Invalid room object");
-            }
+        //[HttpPut("update")]
+        //public async Task<IActionResult> Update([FromBody] Room room)
+        //{
+        //    if (room == null)
+        //        return BadRequest("Invalid room object");
 
-            var result = await _roomService.Update(room);
-            return Ok(result);
-        }
+        //    var result = await _roomService.Update(room);
+        //    return Ok(result);
+        //}
 
         [HttpDelete("delete/{roomId}")]
         public async Task<IActionResult> Delete([FromRoute] int roomId)
         {
             var result = await _roomService.Delete(roomId);
+            return Ok(result);
+        }
+
+        [HttpPost("join/{roomId}")]
+        public async Task<IActionResult> Join([FromRoute] int roomId, [FromBody] string participantName)
+        {
+            var result = await _roomService.Join(roomId, participantName);
+
+            if (!result)
+                return BadRequest("Room was not found");
+
+            return Ok(result);
+        }
+
+        [HttpGet("participants/{roomId}")]
+        public async Task<IActionResult> GetParticipants([FromRoute] int roomId)
+        {
+            var room = await _roomService.GetById(roomId);
+            if (room == null)
+                return NotFound("Room was not found");
+
+            var result = room.Participants;
             return Ok(result);
         }
     }

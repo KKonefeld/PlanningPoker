@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using PlanningPoker.Models;
+using PlanningPoker.Models.Rooms;
 
 namespace PlanningPoker.Persistence
 {
@@ -7,18 +7,30 @@ namespace PlanningPoker.Persistence
     public class PlanningPokerDbContext : DbContext
     {
         public DbSet<Room> Rooms { get; set; }
+        public DbSet<Participant> Participants { get; set; }
 
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        public PlanningPokerDbContext(DbContextOptions<PlanningPokerDbContext> options):
+            base(options)
         {
-            optionsBuilder.UseNpgsql("");
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.UseIdentityColumns();
+
+            modelBuilder.Entity<Room>()
+                .Property(r => r.VotingSystem)
+                .HasConversion<string>();
+
             modelBuilder.Entity<Room>()
                 .HasMany(r => r.Participants)
-                .WithOne()
-                .HasForeignKey(p => p.Id);
+                .WithOne();
+
+            modelBuilder.Entity<Participant>()
+                .Property(p => p.Role)
+                .HasConversion<string>();
+
+            base.OnModelCreating(modelBuilder);
         }
     }
 
