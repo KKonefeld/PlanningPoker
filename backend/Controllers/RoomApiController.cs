@@ -43,31 +43,10 @@ namespace PlanningPoker.Controllers
             return Ok(result);
         }
 
-        //[HttpPut("update")]
-        //public async Task<IActionResult> Update([FromBody] Room room)
-        //{
-        //    if (room == null)
-        //        return BadRequest("Invalid room object");
-
-        //    var result = await _roomService.Update(room);
-        //    return Ok(result);
-        //}
-
         [HttpDelete("delete/{roomId}")]
         public async Task<IActionResult> Delete([FromRoute] int roomId)
         {
             var result = await _roomService.Delete(roomId);
-            return Ok(result);
-        }
-
-        [HttpPost("join/{roomId}")]
-        public async Task<IActionResult> Join([FromRoute] int roomId, [FromBody] string participantName)
-        {
-            var result = await _roomService.Join(roomId, participantName);
-
-            if (!result)
-                return BadRequest("Room was not found");
-
             return Ok(result);
         }
 

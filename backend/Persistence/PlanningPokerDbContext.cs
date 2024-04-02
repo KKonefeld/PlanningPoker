@@ -30,6 +30,10 @@ namespace PlanningPoker.Persistence
                 .Property(p => p.Role)
                 .HasConversion<string>();
 
+            modelBuilder.Entity<Participant>()
+                .Property(p => p.Status)
+                .HasConversion<string>();
+
             base.OnModelCreating(modelBuilder);
         }
     }

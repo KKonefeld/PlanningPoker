@@ -6,11 +6,13 @@ namespace PlanningPoker.Services.RoomService
     {
         Task<IEnumerable<Room>> GetAll();
         Task<Room?> GetById(int id);
+        Task<Room?> GetByConnectionId(string connectionId);
         Task<int> Create(NewRoom room);
-        Task<int> Update(Room room);
         Task<bool> Delete(int id);
 
-        Task<bool> Join(int roomId, string participantName);
+        Task<bool> Join(int roomId, string participantName, string connectionId);
+        Task SubmitVote(string participantName, string connectionId, string voteValue);
+        Task<Participant?> LeaveRoom(string connectionId);
 
     }
 }
