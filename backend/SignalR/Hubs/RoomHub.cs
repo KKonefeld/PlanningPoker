@@ -40,7 +40,7 @@ namespace PlanningPoker.SignalR.Hubs
             await Clients.Group(GetGroupName(room)).SendAsync("VoteSubmitted", participantName, voteValue);
         }
 
-        public override async Task OnDisconnectedAsync(Exception exception)
+        public override async Task OnDisconnectedAsync(Exception? exception)
         {
             var participant = await _roomService.LeaveRoom(Context.ConnectionId);
 
@@ -58,7 +58,7 @@ namespace PlanningPoker.SignalR.Hubs
 
         private string GetGroupName(Room room)
         {
-            return $"{ room.Id }. { room.Name }";
+            return $"[{ room.Id }] { room.Name }";
         }
     }
 }

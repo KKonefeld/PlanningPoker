@@ -24,7 +24,8 @@ namespace PlanningPoker.Persistence
 
             modelBuilder.Entity<Room>()
                 .HasMany(r => r.Participants)
-                .WithOne();
+                .WithOne()
+                .HasForeignKey(p => p.RoomId);
 
             modelBuilder.Entity<Participant>()
                 .Property(p => p.Role)

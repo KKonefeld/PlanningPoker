@@ -5,9 +5,9 @@ import { rooms } from "@/api-mock-data/room-data";
 
 export namespace RoomApi {
   export const getRooms = async () => {
-    // const res = await api.get<Room[]>("/room/all");
-    // return res.data;
-    return rooms;
+    const res = await api.get<Room[]>("/rooms");
+    return res.data;
+    // return rooms;
   };
 
   export const getRoom = async (roomId: number) => {

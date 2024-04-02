@@ -6,7 +6,7 @@ import axios, { isAxiosError } from "axios";
 const APP_TIMEOUT = 9_000;
 
 export const api = axios.create({
-  baseURL: config.baseUrl + "/api/",
+  baseURL: "https://localhost:7008/api/", // config.baseUrl
   headers: {
     "Content-Type": "application/json",
   },
