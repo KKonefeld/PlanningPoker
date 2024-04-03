@@ -2,12 +2,10 @@ import { Participant, VOTING_SYSTEM } from "./user";
 
 export interface Room {
   id: number;
-  publicKey: string;
   name: string;
   capacity: number;
-  createdAt?: string;
+  createdAt: Date;
+  owner?: Participant | null;
+  occupancy: number;
   votingSystem: VOTING_SYSTEM;
-  owner: Participant;
-  currentPlayersCount?: number;
-  participants: Participant[];
 }

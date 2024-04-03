@@ -37,7 +37,7 @@ export const RoomCard = ({ room }: RoomCardProps) => {
         </h2>
       </div>
       <p className="mb-8 text-sm font-semibold text-black">
-        Current players: {room.currentPlayersCount}/{room.capacity}
+        Current players: {room.occupancy}/{room.capacity}
       </p>
       <Button
         className="ml-auto items-end justify-end self-end"

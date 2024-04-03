@@ -8,15 +8,17 @@ namespace PlanningPoker
     {
         public static void Main(string[] args)
         {
-            var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
+            var myAllowSpecificOrigins = "_myAllowSpecificOrigins";
             var builder = WebApplication.CreateBuilder(args);
 
             builder.Services.AddCors(options =>
             {
-                options.AddPolicy(name: MyAllowSpecificOrigins,
+                options.AddPolicy(name: myAllowSpecificOrigins,
                     policy =>
                     {
-                        policy.WithOrigins("http://localhost:3000/");
+                        policy.AllowAnyOrigin();
+                        policy.AllowAnyMethod();
+                        policy.AllowAnyHeader();
                     });
             });
 
@@ -42,13 +44,11 @@ namespace PlanningPoker
 
             app.UseHttpsRedirection();
 
-            app.UseCors(MyAllowSpecificOrigins);
+            app.UseCors(myAllowSpecificOrigins);
             app.UseAuthorization();
 
 
             app.MapControllers();
-
-            //app.MapHub<RoomHub>("/roomHub");
 
             app.Run();
         }

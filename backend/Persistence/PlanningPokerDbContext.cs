@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using PlanningPoker.Models.Participants;
 using PlanningPoker.Models.Rooms;
 
 namespace PlanningPoker.Persistence

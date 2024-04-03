@@ -1,4 +1,4 @@
-﻿namespace PlanningPoker.Models.Rooms
+﻿namespace PlanningPoker.Models.Participants
 {
     public class NewParticipant
     {

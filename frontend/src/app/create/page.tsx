@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
+import { RoomApi } from "@/api/room-api";
 
 import { CaretSortIcon, CheckIcon } from "@radix-ui/react-icons";
 import {
@@ -37,12 +38,12 @@ const votingSystems = [
   {
     system: VOTING_SYSTEM.FIBONACCI,
     label: "Fibonacci (0, 1, 2, 3, 5, 8, ...)",
-    value: "fib",
+    value: VOTING_SYSTEM.FIBONACCI,
   },
   {
-    system: VOTING_SYSTEM.TSHIRT,
+    system: VOTING_SYSTEM.TSHIRTS,
     label: "T-shirts (XS, S, M, L, XL, ...)",
-    value: "tshirt",
+    value: VOTING_SYSTEM.TSHIRTS,
   },
 ] as const;
 
@@ -68,13 +69,19 @@ export default function CreateForm() {
     resolver: zodResolver(formSchema),
     defaultValues: {
       username: "",
-      votingSystem: "fib",
+      votingSystem: VOTING_SYSTEM.FIBONACCI,
       roomCapacity: 10,
     },
   });
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
+    const room: any = {
+      name: values.username,
+      capacity: values.roomCapacity,
+      votingSystem: values.votingSystem
+    };
+    
+    RoomApi.createRoom(room);
   }
 
   return (

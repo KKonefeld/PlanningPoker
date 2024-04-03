@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using PlanningPoker.Models.Participants;
 using PlanningPoker.Models.Rooms;
 using PlanningPoker.Services.RoomService;
 
@@ -18,17 +19,39 @@ namespace PlanningPoker.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            var result = await _roomService.GetAll();
+            var rooms = await _roomService.GetAll();
+
+            var result = rooms.Select(r => new RoomDto
+            {
+                Id = r.Id,
+                Name = r.Name,
+                Capacity = r.Capacity,
+                CreatedAt = r.CreatedAt,
+                Owner = r.Participants.FirstOrDefault(p => p.Role == ParticipantRole.Owner),
+                Occupancy = r.Participants.Count,
+                VotingSystem = r.VotingSystem
+            });
+
             return Ok(result);
         }
 
         [HttpGet("{roomId}")]
         public async Task<IActionResult> Get([FromRoute] int roomId)
         {
-            var result = await _roomService.GetById(roomId);
+            var room = await _roomService.GetById(roomId);
 
-            if (result == null)
+            if (room == null)
                 return NotFound("Room with given id was not found");
+
+            var result = new RoomDto
+            {
+                Id = room.Id,
+                Name = room.Name,
+                Capacity = room.Capacity,
+                CreatedAt = room.CreatedAt,
+                Occupancy = room.Participants.Count,
+                VotingSystem = room.VotingSystem
+            };
 
             return Ok(result);
         }
@@ -39,8 +62,16 @@ namespace PlanningPoker.Controllers
             if (room == null)
                 return BadRequest("Invalid room object");
 
-            var result = await _roomService.Create(room);
-            return Ok(result);
+            try
+            {
+                var result = await _roomService.Create(room);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, $"An error occurred while processing the request. { ex.Message }");
+            }
+
         }
 
         [HttpDelete("delete/{roomId}")]

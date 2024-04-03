@@ -7,20 +7,17 @@ export namespace RoomApi {
   export const getRooms = async () => {
     const res = await api.get<Room[]>("/rooms");
     return res.data;
-    // return rooms;
   };
 
   export const getRoom = async (roomId: number) => {
-    // const res = await api.get<Room>(`/room/${roomId}`);
-    // return res.data;
-    return rooms[roomId];
+    const res = await api.get<Room>(`/rooms/${roomId}`);
+    return res.data;
   };
 
   interface CreateRoomReq {
-    votingSystem: VOTING_SYSTEM;
-    capacity: number;
     name: string;
-    owner: Participant;
+    capacity: number;
+    votingSystem: VOTING_SYSTEM;
   }
 
   interface CreateRoomRes {
@@ -28,9 +25,8 @@ export namespace RoomApi {
   }
 
   export const createRoom = async (params: CreateRoomReq) => {
-    // const res = await api.post<CreateRoomRes>("/room/create", { params });
-    // return res.data;
-    return { roomId: rooms.length + 1 };
+    const res = await api.post<CreateRoomRes>("/rooms/create", params);
+    return res.data;
   };
 
   interface JoinRoomRes {

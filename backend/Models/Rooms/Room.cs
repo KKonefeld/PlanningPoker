@@ -1,4 +1,7 @@
-﻿namespace PlanningPoker.Models.Rooms
+﻿using PlanningPoker.Models.Participants;
+using System.Text.Json.Serialization;
+
+namespace PlanningPoker.Models.Rooms
 {
     public class Room
     {
@@ -12,6 +15,8 @@
         public int Capacity { get; set; }
         public DateTime CreatedAt { get; set; }
         public IList<Participant> Participants { get; set; }
+
+        [JsonConverter(typeof(JsonStringEnumConverter))]
         public VotingSystem VotingSystem { get; set; }
 
     }

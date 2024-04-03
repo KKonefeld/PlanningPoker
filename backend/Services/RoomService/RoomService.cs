@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using PlanningPoker.Models.Participants;
 using PlanningPoker.Models.Rooms;
 using PlanningPoker.Persistence;
 
@@ -36,12 +37,13 @@ namespace PlanningPoker.Services.RoomService
 
         public async Task<int> Create(NewRoom newRoom)
         {
+
             var room = new Room
             {
                 Name = newRoom.Name,
                 Capacity = newRoom.Capacity,
                 CreatedAt = DateTime.UtcNow,
-                VotingSystem = (VotingSystem)Enum.Parse(typeof(VotingSystem), newRoom.VotingSystem)
+                VotingSystem = newRoom.VotingSystem
             };
 
             await _dbContext.Rooms.AddAsync(room);

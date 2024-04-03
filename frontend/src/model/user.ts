@@ -1,11 +1,26 @@
 export enum VOTING_SYSTEM {
-  FIBONACCI = "FIBBONACI",
-  TSHIRT = "TSHIRT",
+  FIBONACCI = "FIBONACCI",
+  TSHIRTS = "TSHIRTS",
 }
 
 export interface Participant {
   id: number;
   name: string;
-  choice?: string | null;
-  roomKey?: string | null;
+  role: string;
+  vote?: string | null;
+  status: string;
+  connectionId: string;
+  roomId: number;
 }
+
+export enum PARTICIPANT_ROLE {
+  BASE = "BASE",
+  OWNER = "OWNER",
+}
+
+export enum PARTICIPANT_STATUS {
+  ACTIVE = "ACTIVE",
+  DISCONNECTED = "DISCONNECTED"
+}
+
+
