@@ -65,7 +65,7 @@ export default function Room({
     };
 
     startConnection();
-  }, [params.roomId]);
+  }, [params.roomId, userNickname]);
 
   useEffect(() => {
     if (!userNickname) return;

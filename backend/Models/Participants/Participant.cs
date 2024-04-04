@@ -11,7 +11,7 @@ namespace PlanningPoker.Models.Participants
 
         public Participant(int roomId, string name, string connectionId, bool isOwner = false)
         {
-            Name = name;
+            Name = name ?? "";
             Role = isOwner ? ParticipantRole.Owner : ParticipantRole.Base;
             Status = ParticipantStatus.Active;
             ConnectionId = connectionId;
