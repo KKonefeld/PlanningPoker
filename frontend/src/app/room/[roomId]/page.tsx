@@ -7,6 +7,9 @@ import {
 import React, { useEffect, useState } from "react";
 import * as signalR from "@microsoft/signalr";
 import { useRouter } from "next/navigation";
+import { Input } from "@/components/ui/input";
+import { VOTING_SYSTEM } from "@/model/user";
+import NicknameForm from "./nicknameForm";
 
 export default function Room({
   params,
@@ -16,7 +19,6 @@ export default function Room({
   };
 }) {
   const [userNickname, setUserNickname] = useState<string | null>(null);
-  const router = useRouter();
 
   const joinRoomMutation = useJoinRoomMutation({
     onSuccess: () => {
@@ -27,16 +29,16 @@ export default function Room({
     },
   });
 
+  const handleSetNickname = (nickname: string) => {
+    setUserNickname(nickname);
+  };
+
   useEffect(() => {
-    if (!userNickname) {
-      let nickname = prompt("provide nickname:");
-      if (!nickname) router.replace(`/rooms`);
-      setUserNickname(nickname);
-      joinRoomMutation.mutate({
-        roomId: Number(params.roomId),
-        nickname: nickname!,
-      });
-    }
+    if (!userNickname) return;
+    joinRoomMutation.mutate({
+      roomId: Number(params.roomId),
+      nickname: userNickname,
+    });
   }, []);
 
   // todo: wsadzić ''https://localhost:7008/' w consta gdzieś
@@ -45,6 +47,7 @@ export default function Room({
     .build();
 
   useEffect(() => {
+    if (!userNickname) return;
     const startConnection = async () => {
       if (connection.state === signalR.HubConnectionState.Disconnected) {
         try {
@@ -65,6 +68,7 @@ export default function Room({
   }, [params.roomId]);
 
   useEffect(() => {
+    if (!userNickname) return;
     return () => {
       if (connection.state === signalR.HubConnectionState.Connected) {
         connection
@@ -84,28 +88,6 @@ export default function Room({
   );
   console.log(data);
 
-  if (isLoading) {
-    return (
-      <div>
-        <h1>Loading...</h1>
-      </div>
-    );
-  }
-  if (isError) {
-    return (
-      <div>
-        <h1>Error: {error.message}</h1>
-      </div>
-    );
-  }
-  if (!data) {
-    return (
-      <div>
-        <h1>No room</h1>
-      </div>
-    );
-  }
-
   const submitVoteHandle = async (value: string | null) => {
     await connection.invoke(
       "SubmitVote",
@@ -115,11 +97,25 @@ export default function Room({
     );
   };
 
+  if (!userNickname) {
+    return <NicknameForm setNickname={handleSetNickname} />;
+  }
+
+  if (isLoading) {
+    return <h1>Loading...</h1>;
+  }
+  if (isError) {
+    return <h1>Error: {error.message}</h1>;
+  }
+  if (!data) {
+    return <h1>No room</h1>;
+  }
+
   return (
     <div>
       <h1 className="mb-8">{`Room ${params.roomId}`}</h1>
       <Deck
-        votingSystem={data.votingSystem}
+        votingSystem={VOTING_SYSTEM.FIBONACCI}
         submitVoteHandle={submitVoteHandle}
       ></Deck>
     </div>
