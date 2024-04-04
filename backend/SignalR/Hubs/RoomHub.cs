@@ -25,7 +25,7 @@ namespace PlanningPoker.SignalR.Hubs
             var groupName = GetGroupName(room);
 
             await Groups.AddToGroupAsync(Context.ConnectionId, groupName);
-            await Clients.Group(room.Name).SendAsync($"User Joined", participantName);
+            await Clients.Group(room.Name).SendAsync("User Joined", participantName);
             await Clients.Caller.SendAsync("RoomDetails", room);
         }
 

@@ -21,7 +21,7 @@ export default function Room({
       if (connection.state === signalR.HubConnectionState.Disconnected) {
         try {
           await connection.start();
-          console.log("SignalR Connected!");
+          console.log("SignalR Connected");
           await connection.invoke(
             "JoinRoom",
             Number(params.roomId),
@@ -38,12 +38,14 @@ export default function Room({
 
   useEffect(() => {
     return () => {
-      connection
-        .stop()
-        .then(() => console.log("SignalR connection stopped"))
-        .catch((error) =>
-          console.error("Error stopping SignalR connection:", error),
-        );
+      if (connection.state === signalR.HubConnectionState.Connected) {
+        connection
+          .stop()
+          .then(() => console.log("SignalR connection stopped"))
+          .catch((error) =>
+            console.error("Error stopping SignalR connection:", error),
+          );
+      }
     };
   }, []);
 
@@ -85,8 +87,6 @@ export default function Room({
     );
   };
 
-  // fronciaki help to się powinno robić po kliknięciu w kartę
-  // await connection.invoke('SubmitVote', Number(params.roomId), 'Participant Name', string voteValue);
   return (
     <div>
       <h1 className="mb-8">{`Room ${params.roomId}`}</h1>
