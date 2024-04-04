@@ -28,13 +28,15 @@ export default function Room({
   });
 
   useEffect(() => {
-    let nickname = prompt("provide nickname:");
-    if (!nickname) router.replace(`/rooms`);
-    setUserNickname(nickname);
-    joinRoomMutation.mutate({
-      roomId: Number(params.roomId),
-      nickname: nickname!,
-    });
+    if (!userNickname) {
+      let nickname = prompt("provide nickname:");
+      if (!nickname) router.replace(`/rooms`);
+      setUserNickname(nickname);
+      joinRoomMutation.mutate({
+        roomId: Number(params.roomId),
+        nickname: nickname!,
+      });
+    }
   }, []);
 
   // todo: wsadzić ''https://localhost:7008/' w consta gdzieś
