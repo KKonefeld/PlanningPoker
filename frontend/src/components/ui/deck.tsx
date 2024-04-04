@@ -46,8 +46,9 @@ const Deck: React.FC<Props> = ({ votingSystem }) => {
 
   return (
     <div className="flex gap-4">
-      {deck.map((card) => (
+      {deck.map((card, index) => (
         <DeckCard
+          key={index}
           label={card}
           onClick={handleCardPress}
           isChosen={card === currentChoice}
