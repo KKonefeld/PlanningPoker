@@ -12,7 +12,7 @@ namespace PlanningPoker.Models.Rooms
         public Participant? Owner { get; set; }
         public int Occupancy { get; set; }
 
-        [JsonConverter(typeof(JsonStringEnumConverter))]
-        public VotingSystem VotingSystem { get; set; }
+        //[JsonConverter(typeof(JsonStringEnumConverter))]
+        public string VotingSystem { get; set; } // todo: enum
     }
 }

@@ -29,7 +29,7 @@ namespace PlanningPoker.Controllers
                 CreatedAt = r.CreatedAt,
                 Owner = r.Participants.FirstOrDefault(p => p.Role == ParticipantRole.Owner),
                 Occupancy = r.Participants.Count,
-                VotingSystem = r.VotingSystem
+                VotingSystem = r.VotingSystem.ToString().ToUpper()
             });
 
             return Ok(result);
@@ -49,8 +49,8 @@ namespace PlanningPoker.Controllers
                 Name = room.Name,
                 Capacity = room.Capacity,
                 CreatedAt = room.CreatedAt,
-                Occupancy = room.Participants.Count,
-                VotingSystem = room.VotingSystem
+                Occupancy = room.Participants.Select(p => p.Status == ParticipantStatus.Active).Count(),
+                VotingSystem = room.VotingSystem.ToString().ToUpper()
             };
 
             return Ok(result);

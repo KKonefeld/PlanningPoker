@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using PlanningPoker.Persistence;
 using PlanningPoker.Services.RoomService;
+using PlanningPoker.SignalR.Hubs;
 
 namespace PlanningPoker
 {
@@ -16,9 +17,10 @@ namespace PlanningPoker
                 options.AddPolicy(name: myAllowSpecificOrigins,
                     policy =>
                     {
-                        policy.AllowAnyOrigin();
-                        policy.AllowAnyMethod();
-                        policy.AllowAnyHeader();
+                        policy.WithOrigins("http://localhost:3000")
+                            .AllowAnyMethod()
+                            .AllowAnyHeader()
+                            .AllowCredentials();
                     });
             });
 
@@ -27,7 +29,10 @@ namespace PlanningPoker
             builder.Services.AddDbContext<PlanningPokerDbContext>(
                 o => o.UseNpgsql(builder.Configuration.GetConnectionString("PlanningPokerDb"))
                 );
+
             builder.Services.AddSignalR();
+            builder.Services.AddTransient<RoomHub>();
+
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
@@ -47,6 +52,7 @@ namespace PlanningPoker
             app.UseCors(myAllowSpecificOrigins);
             app.UseAuthorization();
 
+            app.MapHub<RoomHub>("/roomHub");
 
             app.MapControllers();
 
