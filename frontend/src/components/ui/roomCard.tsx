@@ -1,7 +1,6 @@
 import React from "react";
 import { Room } from "@/model/room";
 import { Button } from "./button";
-import { useJoinRoomMutation } from "@/queries/room.queries";
 import { useRouter } from "next/navigation";
 
 interface RoomCardProps {
@@ -11,23 +10,8 @@ interface RoomCardProps {
 export const RoomCard = ({ room }: RoomCardProps) => {
   const router = useRouter();
 
-  const joinRoomMutation = useJoinRoomMutation({
-    onSuccess: () => {
-      router.push(`/room/${room.id}`);
-      console.log("Joined room");
-    },
-    onError: () => {
-      console.log("Error joining room");
-    },
-  });
-
   const onJoinButtonPress = () => {
-    // temporary
-    let nickname = prompt("provide nickname:");
-
-    if (!nickname) return;
-
-    joinRoomMutation.mutate({ roomId: room.id, nickname: nickname });
+    router.push(`/room/${room.id}`);
   };
 
   return (

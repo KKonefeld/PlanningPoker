@@ -1,8 +1,12 @@
 "use client";
 import Deck from "@/components/ui/deck";
-import { useRoomDetailsQuery } from "@/queries/room.queries";
-import React, { useEffect } from "react";
+import {
+  useJoinRoomMutation,
+  useRoomDetailsQuery,
+} from "@/queries/room.queries";
+import React, { useEffect, useState } from "react";
 import * as signalR from "@microsoft/signalr";
+import { useRouter } from "next/navigation";
 
 export default function Room({
   params,
@@ -11,6 +15,28 @@ export default function Room({
     roomId: string;
   };
 }) {
+  const [userNickname, setUserNickname] = useState<string | null>(null);
+  const router = useRouter();
+
+  const joinRoomMutation = useJoinRoomMutation({
+    onSuccess: () => {
+      console.log("Joined room");
+    },
+    onError: () => {
+      console.log("Error joining room");
+    },
+  });
+
+  useEffect(() => {
+    let nickname = prompt("provide nickname:");
+    if (!nickname) router.replace(`/rooms`);
+    setUserNickname(nickname);
+    joinRoomMutation.mutate({
+      roomId: Number(params.roomId),
+      nickname: nickname!,
+    });
+  }, []);
+
   // todo: wsadzić ''https://localhost:7008/' w consta gdzieś
   const connection = new signalR.HubConnectionBuilder()
     .withUrl("https://localhost:7008/roomHub")
@@ -25,7 +51,7 @@ export default function Room({
           await connection.invoke(
             "JoinRoom",
             Number(params.roomId),
-            "Participant Name",
+            userNickname,
           );
         } catch (error) {
           console.error("SignalR Connection Error:", error);
@@ -80,7 +106,7 @@ export default function Room({
     await connection.invoke(
       "SubmitVote",
       Number(params.roomId),
-      "Participant Name",
+      userNickname,
       value,
     );
   };
