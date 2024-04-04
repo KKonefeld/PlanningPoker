@@ -33,10 +33,15 @@ export namespace RoomApi {
     roomId: number;
   }
 
-  export const joinRoom = async (roomId: number) => {
+  export const joinRoom = async (data: {
+    roomId: number;
+    nickname: string;
+  }) => {
+    const roomId = data.roomId;
+    const nickname = data.nickname;
     // const res = await api.post<JoinRoomRes>(`/room/${roomId}/join`);
     // return res.data;
-    return { roomId };
+    return { roomId, nickname };
   };
 
   export const leaveRoom = async (roomId: number) => {
