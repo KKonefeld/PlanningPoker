@@ -22,7 +22,12 @@ export const RoomCard = ({ room }: RoomCardProps) => {
   });
 
   const onJoinButtonPress = () => {
-    joinRoomMutation.mutate(room.id);
+    // temporary
+    let nickname = prompt("provide nickname:");
+
+    if (!nickname) return;
+
+    joinRoomMutation.mutate({ roomId: room.id, nickname: nickname });
   };
 
   return (

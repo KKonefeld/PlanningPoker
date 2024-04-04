@@ -2,7 +2,7 @@
 import Deck from "@/components/ui/deck";
 import { useRoomDetailsQuery } from "@/queries/room.queries";
 import React, { useEffect } from "react";
-import * as signalR from '@microsoft/signalr';
+import * as signalR from "@microsoft/signalr";
 
 export default function Room({
   params,
@@ -11,10 +11,9 @@ export default function Room({
     roomId: string;
   };
 }) {
-
   // todo: wsadzić ''https://localhost:7008/' w consta gdzieś
   const connection = new signalR.HubConnectionBuilder()
-    .withUrl('https://localhost:7008/roomHub')
+    .withUrl("https://localhost:7008/roomHub")
     .build();
 
   useEffect(() => {
@@ -22,24 +21,32 @@ export default function Room({
       if (connection.state === signalR.HubConnectionState.Disconnected) {
         try {
           await connection.start();
-          console.log('SignalR Connected!');
-          await connection.invoke('JoinRoom', Number(params.roomId), 'Participant Name')
+          console.log("SignalR Connected!");
+          await connection.invoke(
+            "JoinRoom",
+            Number(params.roomId),
+            "Participant Name",
+          );
         } catch (error) {
-          console.error('SignalR Connection Error:', error);
+          console.error("SignalR Connection Error:", error);
         }
       }
     };
-  
+
     startConnection();
-  
-    return () => {
-      // frontasie help za wcześnie się odpala to
-      // connection.stop()
-      //   .then(() => console.log('SignalR connection stopped'))
-      //   .catch(error => console.error('Error stopping SignalR connection:', error));
-    };
   }, [params.roomId]);
-  
+
+  useEffect(() => {
+    return () => {
+      connection
+        .stop()
+        .then(() => console.log("SignalR connection stopped"))
+        .catch((error) =>
+          console.error("Error stopping SignalR connection:", error),
+        );
+    };
+  }, []);
+
   const roomId = params.roomId;
 
   const { data, isLoading, isError, error } = useRoomDetailsQuery(
@@ -69,12 +76,24 @@ export default function Room({
     );
   }
 
+  const submitVoteHandle = async (value: string | null) => {
+    await connection.invoke(
+      "SubmitVote",
+      Number(params.roomId),
+      "Participant Name",
+      value,
+    );
+  };
+
   // fronciaki help to się powinno robić po kliknięciu w kartę
   // await connection.invoke('SubmitVote', Number(params.roomId), 'Participant Name', string voteValue);
   return (
     <div>
       <h1 className="mb-8">{`Room ${params.roomId}`}</h1>
-      <Deck votingSystem={data.votingSystem}></Deck>
+      <Deck
+        votingSystem={data.votingSystem}
+        submitVoteHandle={submitVoteHandle}
+      ></Deck>
     </div>
   );
 }
