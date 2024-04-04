@@ -12,8 +12,9 @@ namespace PlanningPoker.Services.RoomService
         Task<bool> Delete(int id);
 
         Task<bool> Join(int roomId, string participantName, string connectionId);
-        Task SubmitVote(string participantName, string connectionId, string voteValue);
+        Task SubmitVote(string participantName, string connectionId, string? voteValue);
         Task<Participant?> LeaveRoom(string connectionId);
+        Task<bool> HaveAllActiveParticipantsVoted(int roomId);
 
     }
 }

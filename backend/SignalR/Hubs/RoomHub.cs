@@ -25,11 +25,12 @@ namespace PlanningPoker.SignalR.Hubs
             var groupName = GetGroupName(room);
 
             await Groups.AddToGroupAsync(Context.ConnectionId, groupName);
-            await Clients.Group(room.Name).SendAsync("User Joined", participantName);
+            await Clients.Group(groupName).SendAsync("UserJoined", participantName);
+            await Clients.Group(groupName).SendAsync("EveryoneVoted", false);
             await Clients.Caller.SendAsync("RoomDetails", room);
         }
 
-        public async Task SubmitVote(int roomId, string participantName, string voteValue)
+        public async Task SubmitVote(int roomId, string participantName, string? voteValue)
         {
             await _roomService.SubmitVote(participantName, Context.ConnectionId, voteValue);
             var room = await _roomService.GetById(roomId);
@@ -37,7 +38,26 @@ namespace PlanningPoker.SignalR.Hubs
             if (room == null)
                 throw new Exception($"Room { roomId } not found");
 
-            await Clients.Group(GetGroupName(room)).SendAsync("VoteSubmitted", participantName, voteValue);
+            if (voteValue == null)
+            {
+                var statusBeforeWithdraw = await IsVotingFinished(roomId);
+                await Clients.Group(GetGroupName(room)).SendAsync("VoteWithdrawn", participantName);
+
+                if (statusBeforeWithdraw)
+                    await Clients.Group(GetGroupName(room)).SendAsync("EveryoneVoted", false);
+                
+                return;
+            }
+
+            await Clients.Group(GetGroupName(room)).SendAsync("VoteSubmitted", participantName);
+
+            if (await IsVotingFinished(roomId))
+                await Clients.Group(GetGroupName(room)).SendAsync("EveryoneVoted", true);
+        }
+
+        private async Task<bool> IsVotingFinished(int roomId)
+        {
+            return await _roomService.HaveAllActiveParticipantsVoted(roomId);
         }
 
         public override async Task OnDisconnectedAsync(Exception? exception)

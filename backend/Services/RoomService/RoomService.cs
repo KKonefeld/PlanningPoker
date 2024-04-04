@@ -137,10 +137,23 @@ namespace PlanningPoker.Services.RoomService
             if (participant != null)
             {
                 participant.Status = ParticipantStatus.Disconnected;
+                participant.Vote = null;
                 await _dbContext.SaveChangesAsync();
             }
 
             return participant;
+        }
+
+        public async Task<bool> HaveAllActiveParticipantsVoted(int roomId)
+        {
+            var room = await GetById(roomId);
+
+            if (room == null)
+                return false;
+
+            var connectedParticipants = room.Participants.Where(p => p.Status == ParticipantStatus.Active);
+            
+            return connectedParticipants.All(p => p.Vote != null);
         }
     }
 }

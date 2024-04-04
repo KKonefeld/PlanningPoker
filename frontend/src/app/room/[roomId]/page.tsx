@@ -58,6 +58,24 @@ export default function Room({
             Number(params.roomId),
             userNickname,
           );
+
+          // have fun kozioł :>
+          connection.on("UserJoined", async (participantName) => {
+            console.log(`${participantName} joined the room!`);
+          });
+
+          connection.on("VoteSubmitted", async (participantName) => {
+            console.log(`${participantName} submitted vote.`);
+          });
+
+          connection.on("VoteWithdrawn", async (participantName) => {
+            console.log(`${participantName} withdrawn their vote.`);
+          });
+
+          connection.on("EveryoneVoted", async (bool) => {
+            console.log(`Voting ready to finish: ${bool}.`);
+          });
+          
         } catch (error) {
           console.error("SignalR Connection Error:", error);
         }
@@ -71,6 +89,9 @@ export default function Room({
     if (!userNickname) return;
     return () => {
       if (connection.state === signalR.HubConnectionState.Connected) {
+        connection.off("VoteSubmitted");
+        connection.off("VoteWithdrawn");
+        connection.off("EveryoneVoted");
         connection
           .stop()
           .then(() => console.log("SignalR connection stopped"))
