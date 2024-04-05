@@ -49,4 +49,9 @@ export namespace RoomApi {
     // return res.data;
     return { roomId };
   };
+
+  export const getParticipants = async (roomId: number) => {
+    const res = await api.get(`/rooms/${roomId}/participants`);
+    return res.data;
+  };
 }
