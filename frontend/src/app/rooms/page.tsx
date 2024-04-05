@@ -1,7 +1,6 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import { RoomCard } from "@/components/ui/roomCard";
+import { RoomCard } from "@/app/rooms/roomCard";
 import { useRoomsListQuery } from "@/queries/room.queries";
 
 export default function Rooms() {

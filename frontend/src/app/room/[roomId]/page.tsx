@@ -1,5 +1,5 @@
 "use client";
-import Deck from "@/components/ui/deck";
+import Deck from "@/app/room/[roomId]/deck";
 import {
   useJoinRoomMutation,
   useRoomDetailsQuery,
@@ -10,6 +10,7 @@ import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { VOTING_SYSTEM } from "@/model/user";
 import NicknameForm from "./nicknameForm";
+import Participants, { TParticipant } from "./participants";
 
 export default function Room({
   params,
@@ -19,6 +20,13 @@ export default function Room({
   };
 }) {
   const [userNickname, setUserNickname] = useState<string | null>(null);
+
+  // TODO: filter participants - wywalić siebie jesli jest przekazywany
+  const [participants, setParticipants] = useState<TParticipant[]>([
+    { name: "Szef", value: false },
+    { name: "Kamil 420", value: true },
+    { name: "Robert Lewandowski", value: 34 },
+  ]);
 
   const joinRoomMutation = useJoinRoomMutation({
     onSuccess: () => {
@@ -75,7 +83,6 @@ export default function Room({
           connection.on("EveryoneVoted", async (bool) => {
             console.log(`Voting ready to finish: ${bool}.`);
           });
-          
         } catch (error) {
           console.error("SignalR Connection Error:", error);
         }
@@ -135,6 +142,7 @@ export default function Room({
   return (
     <div>
       <h1 className="mb-8">{`Room ${params.roomId}`}</h1>
+      <Participants participants={participants} />
       <Deck
         votingSystem={VOTING_SYSTEM.FIBONACCI}
         submitVoteHandle={submitVoteHandle}

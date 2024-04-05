@@ -1,6 +1,6 @@
 import React from "react";
 import { Room } from "@/model/room";
-import { Button } from "./button";
+import { Button } from "../../components/ui/button";
 import { useRouter } from "next/navigation";
 
 interface RoomCardProps {
