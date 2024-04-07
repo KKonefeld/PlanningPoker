@@ -26,8 +26,13 @@ export namespace RoomApi {
   }
 
   export const createRoom = async (params: CreateRoomReq) => {
-    const res = await api.post<CreateRoomRes>("/rooms/create", params);
-    return res.data;
+    try {
+      const res = await api.post<CreateRoomRes>("/rooms/create", params);
+
+      return res.data;
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   interface JoinRoomRes {
@@ -59,5 +64,5 @@ export namespace RoomApi {
   export const getVotingState = async (roomId: number) => {
     const res = await api.get(`/rooms/${roomId}/voting-state`);
     return res.data;
-  }
+  };
 }

@@ -1,13 +1,13 @@
-'use client';
-import Deck from '@/app/room/[roomId]/deck';
+"use client";
+import Deck from "@/app/room/[roomId]/deck";
 import {
   useJoinRoomMutation,
   useRoomDetailsQuery,
-} from '@/queries/room.queries';
-import React, { useEffect, useState } from 'react';
-import * as signalR from '@microsoft/signalr';
-import NicknameForm from './nicknameForm';
-import Participants, { TParticipant } from './participants';
+} from "@/queries/room.queries";
+import React, { use, useEffect, useState } from "react";
+import * as signalR from "@microsoft/signalr";
+import NicknameForm from "./nicknameForm";
+import Participants, { TParticipant } from "./participants";
 
 export default function Room({
   params,
@@ -17,16 +17,20 @@ export default function Room({
   };
 }) {
   const [userNickname, setUserNickname] = useState<string | null>(null);
+  const [connection, setConnection] = useState<signalR.HubConnection | null>(
+    null,
+  );
+  console.log("rerender");
 
   // TODO: filter participants - wywalić siebie jesli jest przekazywany
   const [participants, setParticipants] = useState<TParticipant[]>([]);
 
   const joinRoomMutation = useJoinRoomMutation({
     onSuccess: () => {
-      console.log('Joined room');
+      console.log("Joined room");
     },
     onError: () => {
-      console.log('Error joining room');
+      console.log("Error joining room");
     },
   });
 
@@ -45,82 +49,86 @@ export default function Room({
   }, []);
 
   // todo: wsadzić 'https://localhost:7008/' w consta gdzieś
-  const connection = new signalR.HubConnectionBuilder()
-    .withUrl('https://localhost:7008/roomHub')
-    .build();
-
   useEffect(() => {
     if (!userNickname) return;
     const startConnection = async () => {
-      if (connection.state === signalR.HubConnectionState.Disconnected) {
-        try {
-          await connection.start();
-          
-          console.log('SignalR Connected');
+      try {
+        const connection = new signalR.HubConnectionBuilder()
+          .withUrl("https://localhost:7008/roomHub")
+          .build();
 
-          connection.on('UserJoined', async (participantName) => {
-            console.log(`${participantName} joined the room!`);
-          });
+        console.log("SignalR Connected");
 
-          connection.on('UserLeft', async (participantName) => {
-            console.log(`${participantName} left the room.`);
-          });
+        connection.on("UserJoined", async (participantName) => {
+          console.log(`${participantName} joined the room!`);
+        });
 
-          connection.on('VoteSubmitted', async (participantName) => {
-            console.log(`${participantName} submitted vote.`);
-          });
+        connection.on("UserLeft", async (participantName) => {
+          console.log(`${participantName} left the room.`);
+        });
 
-          connection.on('VoteWithdrawn', async (participantName) => {
-            console.log(`${participantName} withdrawn their vote.`);
-          });
+        connection.on("VoteSubmitted", async (participantName) => {
+          console.log(`${participantName} submitted vote.`);
+        });
 
-          connection.on('EveryoneVoted', async (bool) => {
-            console.log(`Voting ready to finish: ${bool}.`);
-          });
-          
-          connection.on('VotingState', async (votingState) => {
-            console.log('votingstate:', votingState);
-            setParticipants(votingState);
-            console.log('connection:', connection);
-          });
+        connection.on("VoteWithdrawn", async (participantName) => {
+          console.log(`${participantName} withdrawn their vote.`);
+        });
 
-          connection.on('VotingResults', async (votingResults) => {
-            setParticipants(votingResults);
-          });
+        connection.on("EveryoneVoted", async (bool) => {
+          console.log(`Voting ready to finish: ${bool}.`);
+        });
 
-          await connection.invoke(
-            'JoinRoom',
-            Number(params.roomId),
-            userNickname,
-          );
-          
-        } catch (error) {
-          console.error('SignalR Connection Error:', error);
-        }
+        connection.on("VotingState", async (votingState) => {
+          console.log("votingstate:", votingState);
+          setParticipants(votingState);
+          console.log("connection:", connection);
+        });
+
+        connection.on("VotingResults", async (votingResults) => {
+          console.log(votingResults);
+          setParticipants(votingResults);
+        });
+
+        await connection.start();
+
+        await connection.invoke(
+          "JoinRoom",
+          Number(params.roomId),
+          userNickname,
+        );
+
+        setConnection(connection);
+      } catch (error) {
+        console.error("SignalR Connection Error:", error);
       }
     };
 
     startConnection();
+  }, [params.roomId, userNickname]);
 
+  useEffect(() => {
     return () => {
-      if (connection.state === signalR.HubConnectionState.Connected) {
-        connection.off('UserJoined');
-        connection.off('UserLeft');
-        connection.off('VoteSubmitted');
-        connection.off('VoteWithdrawn');
-        connection.off('EveryoneVoted');
-        connection.off('VotingState');
-        connection.off('VotingResults');
+      setConnection(null);
+      if (connection) {
+        console.log("gowno");
+        connection.off("UserJoined");
+        connection.off("UserLeft");
+        connection.off("VoteSubmitted");
+        connection.off("VoteWithdrawn");
+        connection.off("EveryoneVoted");
+        connection.off("VotingState");
+        connection.off("VotingResults");
         connection
           .stop()
-          .then(() => console.log('SignalR connection stopped'))
+          .then(() => console.log("SignalR connection stopped"))
           .catch((error) =>
-            console.error('Error stopping SignalR connection:', error),
+            console.error("Error stopping SignalR connection:", error),
           );
+        setConnection(null);
       }
     };
-
-  }, [params.roomId, userNickname]);
+  }, []);
 
   const roomId = params.roomId;
 
@@ -129,8 +137,10 @@ export default function Room({
   );
 
   const submitVoteHandle = async (value: string | null) => {
+    if (!connection) return;
+    console.log(value, connection.state);
     await connection.invoke(
-      'SubmitVote',
+      "SubmitVote",
       Number(params.roomId),
       userNickname,
       value,
@@ -153,12 +163,12 @@ export default function Room({
 
   return (
     <div>
-      <h1 className='mb-8'>{`Room ${params.roomId}`}</h1>
+      <h1 className="mb-8">{`Room ${params.roomId}`}</h1>
+      <Participants participants={participants} />
       <Deck
         votingSystem={data.votingSystem}
         submitVoteHandle={submitVoteHandle}
       ></Deck>
-      <Participants participants={participants} />
     </div>
   );
 }
