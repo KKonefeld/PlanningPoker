@@ -17,19 +17,21 @@ export const RoomCard = ({ room }: RoomCardProps) => {
   return (
     <div
       key={room.id}
-      className="flex min-w-60 flex-col rounded-lg bg-white p-4"
+      className="flex min-w-60 flex-col rounded-lg bg-gray-200 p-4"
     >
       <div className="flex flex-row gap-2">
-        <h2 className="text-lg font-bold text-black">{room.name}</h2>
-        <h2 className="text-lg font-bold italic text-black/20">
+        <h2 className="text-lg font-bold text-black ">{room.name}</h2>
+        <h2 className="text-lg font-bold italic text-black/40">
           {room.votingSystem}
         </h2>
       </div>
-      <p className="mb-8 text-sm font-semibold text-black">
+    
+      
+      <p className="mb-8 text-sm font-semibold text-black overline ">
         Current players: {room.occupancy}/{room.capacity}
       </p>
       <Button
-        className="ml-auto items-end justify-end self-end"
+        className="ml-auto items-end justify-end self-end hover:bg-blue-700"
         onClick={onJoinButtonPress}
       >
         Join room

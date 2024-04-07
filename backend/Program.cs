@@ -26,9 +26,25 @@ namespace PlanningPoker
 
             // Add services to the container.
             builder.Services.AddScoped<IRoomService, RoomService>();
-            builder.Services.AddDbContext<PlanningPokerDbContext>(
-                o => o.UseNpgsql(builder.Configuration.GetConnectionString("PlanningPokerDb"))
+            try
+            {
+                var connectionString = builder.Configuration.GetConnectionString("PlanningPokerDb");
+                builder.Services.AddDbContext<PlanningPokerDbContext>(options =>
+                    options.UseNpgsql(connectionString)
                 );
+
+                //using (var scope = builder.Services.BuildServiceProvider().CreateScope())
+               //{
+                    //var context = scope.ServiceProvider.GetRequiredService<PlanningPokerDbContext>();
+                    //context.Database.OpenConnection(); // Attempt to open a connection
+                    //Console.WriteLine("Successfully connected to PlanningPokerDb!");
+               // }
+            }
+            catch (Exception ex)
+            {
+            // Handle connection error here (e.g., log the exception)
+            Console.WriteLine("Error connecting to database:", ex.Message);
+            }
 
             builder.Services.AddSignalR();
             builder.Services.AddTransient<RoomHub>();
