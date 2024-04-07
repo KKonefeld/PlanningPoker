@@ -1,16 +1,13 @@
-"use client";
-import Deck from "@/app/room/[roomId]/deck";
+'use client';
+import Deck from '@/app/room/[roomId]/deck';
 import {
   useJoinRoomMutation,
   useRoomDetailsQuery,
-} from "@/queries/room.queries";
-import React, { useEffect, useState } from "react";
-import * as signalR from "@microsoft/signalr";
-import { useRouter } from "next/navigation";
-import { Input } from "@/components/ui/input";
-import { VOTING_SYSTEM } from "@/model/user";
-import NicknameForm from "./nicknameForm";
-import Participants, { TParticipant } from "./participants";
+} from '@/queries/room.queries';
+import React, { useEffect, useState } from 'react';
+import * as signalR from '@microsoft/signalr';
+import NicknameForm from './nicknameForm';
+import Participants, { TParticipant } from './participants';
 
 export default function Room({
   params,
@@ -22,18 +19,14 @@ export default function Room({
   const [userNickname, setUserNickname] = useState<string | null>(null);
 
   // TODO: filter participants - wywalić siebie jesli jest przekazywany
-  const [participants, setParticipants] = useState<TParticipant[]>([
-    { name: "Szef", value: false },
-    { name: "Kamil 420", value: true },
-    { name: "Robert Lewandowski", value: 34 },
-  ]);
+  const [participants, setParticipants] = useState<TParticipant[]>([]);
 
   const joinRoomMutation = useJoinRoomMutation({
     onSuccess: () => {
-      console.log("Joined room");
+      console.log('Joined room');
     },
     onError: () => {
-      console.log("Error joining room");
+      console.log('Error joining room');
     },
   });
 
@@ -47,11 +40,13 @@ export default function Room({
       roomId: Number(params.roomId),
       nickname: userNickname,
     });
+
+    console.log(connection);
   }, []);
 
-  // todo: wsadzić ''https://localhost:7008/' w consta gdzieś
+  // todo: wsadzić 'https://localhost:7008/' w consta gdzieś
   const connection = new signalR.HubConnectionBuilder()
-    .withUrl("https://localhost:7008/roomHub")
+    .withUrl('https://localhost:7008/roomHub')
     .build();
 
   useEffect(() => {
@@ -60,65 +55,82 @@ export default function Room({
       if (connection.state === signalR.HubConnectionState.Disconnected) {
         try {
           await connection.start();
-          console.log("SignalR Connected");
-          await connection.invoke(
-            "JoinRoom",
-            Number(params.roomId),
-            userNickname,
-          );
+          
+          console.log('SignalR Connected');
 
-          // have fun kozioł :>
-          connection.on("UserJoined", async (participantName) => {
+          connection.on('UserJoined', async (participantName) => {
             console.log(`${participantName} joined the room!`);
           });
 
-          connection.on("VoteSubmitted", async (participantName) => {
+          connection.on('UserLeft', async (participantName) => {
+            console.log(`${participantName} left the room.`);
+          });
+
+          connection.on('VoteSubmitted', async (participantName) => {
             console.log(`${participantName} submitted vote.`);
           });
 
-          connection.on("VoteWithdrawn", async (participantName) => {
+          connection.on('VoteWithdrawn', async (participantName) => {
             console.log(`${participantName} withdrawn their vote.`);
           });
 
-          connection.on("EveryoneVoted", async (bool) => {
+          connection.on('EveryoneVoted', async (bool) => {
             console.log(`Voting ready to finish: ${bool}.`);
           });
+          
+          connection.on('VotingState', async (votingState) => {
+            console.log('votingstate:', votingState);
+            setParticipants(votingState);
+            console.log('connection:', connection);
+          });
+
+          connection.on('VotingResults', async (votingResults) => {
+            setParticipants(votingResults);
+          });
+
+          await connection.invoke(
+            'JoinRoom',
+            Number(params.roomId),
+            userNickname,
+          );
+          
         } catch (error) {
-          console.error("SignalR Connection Error:", error);
+          console.error('SignalR Connection Error:', error);
         }
       }
     };
 
     startConnection();
-  }, [params.roomId, userNickname]);
 
-  useEffect(() => {
-    if (!userNickname) return;
     return () => {
       if (connection.state === signalR.HubConnectionState.Connected) {
-        connection.off("VoteSubmitted");
-        connection.off("VoteWithdrawn");
-        connection.off("EveryoneVoted");
+        connection.off('UserJoined');
+        connection.off('UserLeft');
+        connection.off('VoteSubmitted');
+        connection.off('VoteWithdrawn');
+        connection.off('EveryoneVoted');
+        connection.off('VotingState');
+        connection.off('VotingResults');
         connection
           .stop()
-          .then(() => console.log("SignalR connection stopped"))
+          .then(() => console.log('SignalR connection stopped'))
           .catch((error) =>
-            console.error("Error stopping SignalR connection:", error),
+            console.error('Error stopping SignalR connection:', error),
           );
       }
     };
-  }, []);
+
+  }, [params.roomId, userNickname]);
 
   const roomId = params.roomId;
 
   const { data, isLoading, isError, error } = useRoomDetailsQuery(
     parseInt(roomId),
   );
-  console.log(data);
 
   const submitVoteHandle = async (value: string | null) => {
     await connection.invoke(
-      "SubmitVote",
+      'SubmitVote',
       Number(params.roomId),
       userNickname,
       value,
@@ -141,12 +153,12 @@ export default function Room({
 
   return (
     <div>
-      <h1 className="mb-8">{`Room ${params.roomId}`}</h1>
-      <Participants participants={participants} />
+      <h1 className='mb-8'>{`Room ${params.roomId}`}</h1>
       <Deck
-        votingSystem={VOTING_SYSTEM.FIBONACCI}
+        votingSystem={data.votingSystem}
         submitVoteHandle={submitVoteHandle}
       ></Deck>
+      <Participants participants={participants} />
     </div>
   );
 }

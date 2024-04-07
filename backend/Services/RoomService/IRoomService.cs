@@ -13,8 +13,12 @@ namespace PlanningPoker.Services.RoomService
 
         Task<bool> Join(int roomId, string participantName, string connectionId);
         Task SubmitVote(string participantName, string connectionId, string? voteValue);
-        Task<Participant?> LeaveRoom(string connectionId);
+        Task<Participant?> GetParticipantByConnectionId(string connectionId);
+        Task LeaveRoom(Participant participant);
         Task<bool> HaveAllActiveParticipantsVoted(int roomId);
+
+        IList<VotingState> GetVotingState(Room room);
+        IList<VotingResults> GetVotingResults(Room room);
 
     }
 }

@@ -28,7 +28,7 @@ namespace PlanningPoker.Controllers
                 Capacity = r.Capacity,
                 CreatedAt = r.CreatedAt,
                 Owner = r.Participants.FirstOrDefault(p => p.Role == ParticipantRole.Owner),
-                Occupancy = r.Participants.Count(p => p.Status == ParticipantStatus.Active),
+                Occupancy = r.Participants.Count,
                 VotingSystem = r.VotingSystem.ToString().ToUpper()
             });
 
@@ -49,7 +49,7 @@ namespace PlanningPoker.Controllers
                 Name = room.Name,
                 Capacity = room.Capacity,
                 CreatedAt = room.CreatedAt,
-                Occupancy = room.Participants.Count(p => p.Status == ParticipantStatus.Active),
+                Occupancy = room.Participants.Count,
                 VotingSystem = room.VotingSystem.ToString().ToUpper()
             };
 
@@ -86,9 +86,22 @@ namespace PlanningPoker.Controllers
         {
             var room = await _roomService.GetById(roomId);
             if (room == null)
-                return NotFound("Room was not found");
+                return NotFound($"Room { roomId } was not found");
 
             var result = room.Participants;
+            return Ok(result);
+        }
+
+        [HttpGet("{roomId}/voting-state")]
+        public async Task<IActionResult> GetVotingState([FromRoute] int roomId)
+        {
+            var room = await _roomService.GetById(roomId);
+            
+            if (room == null)
+                return NotFound($"Room { roomId } was not found");
+            
+            var result = _roomService.GetVotingState(room);
+
             return Ok(result);
         }
     }

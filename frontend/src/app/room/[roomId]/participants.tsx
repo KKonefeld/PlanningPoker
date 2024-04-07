@@ -3,7 +3,7 @@ import Participant from "./participant";
 // TODO: move to model
 export type TParticipant = {
   name: string;
-  value: boolean | number;
+  value: boolean | string;
 };
 
 type Props = {

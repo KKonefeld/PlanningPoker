@@ -13,7 +13,7 @@ namespace PlanningPoker.Models.Participants
         {
             Name = name ?? "";
             Role = isOwner ? ParticipantRole.Owner : ParticipantRole.Base;
-            Status = ParticipantStatus.Active;
+            // Status = ParticipantStatus.Active;
             ConnectionId = connectionId;
             RoomId = roomId;
         }
@@ -24,9 +24,6 @@ namespace PlanningPoker.Models.Participants
         [JsonConverter(typeof(JsonStringEnumConverter))]
         public ParticipantRole Role { get; set; }
         public string? Vote { get; set; }
-
-        [JsonConverter(typeof(JsonStringEnumConverter))]
-        public ParticipantStatus Status { get; set; }
         public string ConnectionId { get; set; }
         public int RoomId { get; set; }
     }
