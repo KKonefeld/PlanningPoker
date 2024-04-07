@@ -16,12 +16,12 @@ namespace PlanningPoker.SignalR.Hubs
 
         public async Task JoinRoom(int roomId, string participantName)
         {
-            await _roomService.Join(roomId, participantName, Context.ConnectionId);
-
             var room = await _roomService.GetById(roomId);
 
             if (room == null)
                 throw new Exception($"Room { roomId } not found");
+
+            await _roomService.Join(room, participantName, Context.ConnectionId);
 
             var groupName = GetGroupName(room);
 

@@ -8,6 +8,7 @@ import React, { use, useEffect, useState } from "react";
 import * as signalR from "@microsoft/signalr";
 import NicknameForm from "./nicknameForm";
 import Participants, { TParticipant } from "./participants";
+import { Button } from "@/components/ui/button";
 
 export default function Room({
   params,
@@ -20,7 +21,7 @@ export default function Room({
   const [connection, setConnection] = useState<signalR.HubConnection | null>(
     null,
   );
-  console.log("rerender");
+  const [gameState, setGameState] = useState<string>(''); 
 
   // TODO: filter participants - wywalić siebie jesli jest przekazywany
   const [participants, setParticipants] = useState<TParticipant[]>([]);
@@ -77,6 +78,9 @@ export default function Room({
 
         connection.on("EveryoneVoted", async (bool) => {
           console.log(`Voting ready to finish: ${bool}.`);
+          if (bool) {
+            setGameState('finished');
+          }
         });
 
         connection.on("VotingState", async (votingState) => {
@@ -161,14 +165,19 @@ export default function Room({
     return <h1>No room</h1>;
   }
 
+  // todo: pokazywanie wyników po wciśnięciu przycisku
   return (
     <div>
       <h1 className="mb-8">{`Room ${params.roomId}`}</h1>
-      <Participants participants={participants} />
       <Deck
         votingSystem={data.votingSystem}
         submitVoteHandle={submitVoteHandle}
       ></Deck>
+      <Participants participants={participants} />
+
+      {/* <div style={{ display: 'flex', justifyContent: 'center' }}>
+        <Button disabled={gameState != 'finished'} className="mt-5">Lock Voting</Button>
+      </div> */}
     </div>
   );
 }

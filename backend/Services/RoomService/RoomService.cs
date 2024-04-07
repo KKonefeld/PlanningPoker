@@ -65,25 +65,32 @@ namespace PlanningPoker.Services.RoomService
             return true;
         }
 
-        public async Task<bool> Join(int roomId, string participantName, string connectionId)
+        public async Task<bool> Join(Room room, string participantName, string connectionId)
         {
-            var room = _dbContext.Rooms.FirstOrDefault(r => r.Id == roomId);
+            var existingParticipant = room.Participants.FirstOrDefault(p => p.Name == participantName);
 
-            if (room == null)
-            {
-                return false;
-            }
+            if (existingParticipant == null)
+                await CreateParticipant(room.Id, participantName, connectionId, room.Participants.Count == 0);
+            else    
+                await UpdateParticipant(existingParticipant, connectionId);
 
-            await CreateParticipant(roomId, participantName, connectionId);
             return true;
         }
 
-        private async Task<Participant> CreateParticipant(int roomId, string participantName, string connectionId)
+        private async Task CreateParticipant(int roomId, string participantName, string connectionId, bool isOwner)
         {
-            var participant = new Participant(roomId, participantName, connectionId);
+            var participant = new Participant(roomId, participantName, connectionId, isOwner);
             await _dbContext.Participants.AddAsync(participant);
             await _dbContext.SaveChangesAsync();
-            return participant;
+        }
+
+        private async Task UpdateParticipant(Participant existingParticipant, string connectionId)
+        {
+            existingParticipant.ConnectionId = connectionId;
+            existingParticipant.Vote = null;
+
+            _dbContext.Update(existingParticipant);
+            await _dbContext.SaveChangesAsync();
         }
 
         public async Task SubmitVote(string participantName, string connectionId, string voteValue)
