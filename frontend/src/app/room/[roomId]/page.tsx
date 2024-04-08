@@ -9,6 +9,7 @@ import * as signalR from "@microsoft/signalr";
 import NicknameForm from "./nicknameForm";
 import Participants, { TParticipant } from "./participants";
 import { Button } from "@/components/ui/button";
+import { useRouter } from "next/navigation";
 
 export default function Room({
   params,
@@ -25,6 +26,7 @@ export default function Room({
 
   // TODO: filter participants - wywalić siebie jesli jest przekazywany
   const [participants, setParticipants] = useState<TParticipant[]>([]);
+  const router = useRouter();
 
   const joinRoomMutation = useJoinRoomMutation({
     onSuccess: () => {
@@ -59,6 +61,10 @@ export default function Room({
           .build();
 
         console.log("SignalR Connected");
+
+        connection.on("NoRoomInRoom", async () => {
+          router.push('/rooms');
+        });
 
         connection.on("UserJoined", async (participantName) => {
           console.log(`${participantName} joined the room!`);

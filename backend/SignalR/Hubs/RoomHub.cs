@@ -21,6 +21,12 @@ namespace PlanningPoker.SignalR.Hubs
             if (room == null)
                 throw new Exception($"Room { roomId } not found");
 
+            if (room.Participants.Count >= room.Capacity)
+            {
+                await Clients.Caller.SendAsync("NoRoomInRoom");
+                return;
+            }
+
             await _roomService.Join(room, participantName, Context.ConnectionId);
 
             var groupName = GetGroupName(room);
