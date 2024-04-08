@@ -65,61 +65,37 @@ namespace PlanningPoker.Services.RoomService
             return true;
         }
 
-        public async Task<bool> Join(int roomId, string participantName, string connectionId)
+        public async Task<bool> Join(Room room, string participantName, string connectionId)
         {
-            var existingParticipant = await _dbContext.Participants.FirstOrDefaultAsync(p => p.RoomId == roomId && p.Name == participantName);
-            
-            if (existingParticipant != null)
-                return await Rejoin(existingParticipant, connectionId);
+            var existingParticipant = room.Participants.FirstOrDefault(p => p.Name == participantName);
 
-            return await AddParticipant(roomId, participantName, connectionId);
-        }
+            if (existingParticipant == null)
+                await CreateParticipant(room.Id, participantName, connectionId, room.Participants.Count == 0);
+            else    
+                await UpdateParticipant(existingParticipant, connectionId);
 
-        private async Task<bool> Rejoin(Participant existingParticipant, string newConnectionId)
-        {
-            existingParticipant.Status = ParticipantStatus.Active;
-            existingParticipant.ConnectionId = newConnectionId;
-
-            try
-            {
-                _dbContext.Update(existingParticipant);
-                await _dbContext.SaveChangesAsync();
-                return true;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-                return false;
-            }
-        }
-
-        private async Task<bool> AddParticipant(int roomId, string participantName, string connectionId)
-        {
-            var participant = await CreateParticipant(roomId, participantName, connectionId);
-            var room = _dbContext.Rooms.FirstOrDefault(r => r.Id == roomId);
-
-            if (room == null)
-            {
-                return false;
-            }
-
-            room.Participants.Add(participant);
-            await _dbContext.SaveChangesAsync();
             return true;
         }
 
-        private async Task<Participant> CreateParticipant(int roomId, string participantName, string connectionId)
+        private async Task CreateParticipant(int roomId, string participantName, string connectionId, bool isOwner)
         {
-            var participant = new Participant(roomId, participantName, connectionId);
+            var participant = new Participant(roomId, participantName, connectionId, isOwner);
             await _dbContext.Participants.AddAsync(participant);
             await _dbContext.SaveChangesAsync();
-            return participant;
+        }
+
+        private async Task UpdateParticipant(Participant existingParticipant, string connectionId)
+        {
+            existingParticipant.ConnectionId = connectionId;
+            existingParticipant.Vote = null;
+
+            _dbContext.Update(existingParticipant);
+            await _dbContext.SaveChangesAsync();
         }
 
         public async Task SubmitVote(string participantName, string connectionId, string voteValue)
         {
             var participant = await _dbContext.Participants
-                .Where(p => p.Status == ParticipantStatus.Active)
                 .Where(p => p.ConnectionId == connectionId)
                 .FirstOrDefaultAsync(p => p.Name == participantName);
 
@@ -130,18 +106,15 @@ namespace PlanningPoker.Services.RoomService
             await _dbContext.SaveChangesAsync();
         }
 
-        public async Task<Participant?> LeaveRoom(string connectionId)
+        public async Task<Participant?> GetParticipantByConnectionId(string connectionId)
         {
-            var participant = await _dbContext.Participants.FirstOrDefaultAsync(p => p.ConnectionId == connectionId);
+            return await _dbContext.Participants.FirstOrDefaultAsync(p => p.ConnectionId == connectionId);
+        }
 
-            if (participant != null)
-            {
-                participant.Status = ParticipantStatus.Disconnected;
-                participant.Vote = null;
-                await _dbContext.SaveChangesAsync();
-            }
-
-            return participant;
+        public async Task LeaveRoom(Participant participant)
+        {
+            _dbContext.Remove(participant);
+            await _dbContext.SaveChangesAsync();
         }
 
         public async Task<bool> HaveAllActiveParticipantsVoted(int roomId)
@@ -151,9 +124,17 @@ namespace PlanningPoker.Services.RoomService
             if (room == null)
                 return false;
 
-            var connectedParticipants = room.Participants.Where(p => p.Status == ParticipantStatus.Active);
-            
-            return connectedParticipants.All(p => p.Vote != null);
+            return room.Participants.All(p => p.Vote != null);
+        }
+
+        public IList<VotingState> GetVotingState(Room room)
+        {
+            return room.Participants.OrderBy(p => p.Id).Select(participant => (new VotingState(participant.Name, participant.Vote != null))).ToList();
+        }
+
+        public IList<VotingResults> GetVotingResults(Room room)
+        {
+            return room.Participants.OrderBy(p => p.Id).Select(participant => new VotingResults(participant.Name, participant.Vote!)).ToList();
         }
     }
 }

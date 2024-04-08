@@ -2,6 +2,7 @@ import { Participant, VOTING_SYSTEM } from "@/model/user";
 import { api } from "./client";
 import { Room } from "@/model/room";
 import { rooms } from "@/api-mock-data/room-data";
+import { TParticipant } from "@/app/room/[roomId]/participants";
 
 export namespace RoomApi {
   export const getRooms = async () => {
@@ -25,8 +26,13 @@ export namespace RoomApi {
   }
 
   export const createRoom = async (params: CreateRoomReq) => {
-    const res = await api.post<CreateRoomRes>("/rooms/create", params);
-    return res.data;
+    try {
+      const res = await api.post<CreateRoomRes>("/rooms/create", params);
+
+      return res.data;
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   interface JoinRoomRes {
@@ -52,6 +58,11 @@ export namespace RoomApi {
 
   export const getParticipants = async (roomId: number) => {
     const res = await api.get(`/rooms/${roomId}/participants`);
+    return res.data;
+  };
+
+  export const getVotingState = async (roomId: number) => {
+    const res = await api.get(`/rooms/${roomId}/voting-state`);
     return res.data;
   };
 }

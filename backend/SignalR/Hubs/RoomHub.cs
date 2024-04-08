@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.SignalR;
+using PlanningPoker.Models.Participants;
 using PlanningPoker.Models.Rooms;
 using PlanningPoker.Services.RoomService;
 
@@ -15,12 +16,12 @@ namespace PlanningPoker.SignalR.Hubs
 
         public async Task JoinRoom(int roomId, string participantName)
         {
-            await _roomService.Join(roomId, participantName, Context.ConnectionId);
-
             var room = await _roomService.GetById(roomId);
 
             if (room == null)
                 throw new Exception($"Room { roomId } not found");
+
+            await _roomService.Join(room, participantName, Context.ConnectionId);
 
             var groupName = GetGroupName(room);
 
@@ -28,6 +29,9 @@ namespace PlanningPoker.SignalR.Hubs
             await Clients.Group(groupName).SendAsync("UserJoined", participantName);
             await Clients.Group(groupName).SendAsync("EveryoneVoted", false);
             await Clients.Caller.SendAsync("RoomDetails", room);
+
+            var votingState = _roomService.GetVotingState(room);
+            await Clients.Group(groupName).SendAsync("VotingState", votingState);
         }
 
         public async Task SubmitVote(int roomId, string participantName, string? voteValue)
@@ -38,21 +42,28 @@ namespace PlanningPoker.SignalR.Hubs
             if (room == null)
                 throw new Exception($"Room { roomId } not found");
 
+            var groupName = GetGroupName(room);
+
             if (voteValue == null)
             {
-                var statusBeforeWithdraw = await IsVotingFinished(roomId);
-                await Clients.Group(GetGroupName(room)).SendAsync("VoteWithdrawn", participantName);
+                await Clients.Group(groupName).SendAsync("VoteWithdrawn", participantName);
+                await Clients.Group(groupName).SendAsync("EveryoneVoted", false);
+            }
+            else
+            {
+                await Clients.Group(groupName).SendAsync("VoteSubmitted", participantName);
+            }
 
-                if (statusBeforeWithdraw)
-                    await Clients.Group(GetGroupName(room)).SendAsync("EveryoneVoted", false);
-                
+            if (await IsVotingFinished(roomId))
+            {
+                await Clients.Group(groupName).SendAsync("EveryoneVoted", true);
+                var votingResults = _roomService.GetVotingResults(room);
+                await Clients.Group(groupName).SendAsync("VotingResults", votingResults);
                 return;
             }
 
-            await Clients.Group(GetGroupName(room)).SendAsync("VoteSubmitted", participantName);
-
-            if (await IsVotingFinished(roomId))
-                await Clients.Group(GetGroupName(room)).SendAsync("EveryoneVoted", true);
+            var votingState = _roomService.GetVotingState(room);
+            await Clients.Group(groupName).SendAsync("VotingState", votingState);
         }
 
         private async Task<bool> IsVotingFinished(int roomId)
@@ -62,17 +73,23 @@ namespace PlanningPoker.SignalR.Hubs
 
         public override async Task OnDisconnectedAsync(Exception? exception)
         {
-            var participant = await _roomService.LeaveRoom(Context.ConnectionId);
+            var participant = await _roomService.GetParticipantByConnectionId(Context.ConnectionId);
 
             if (participant != null)
             {
-                var room = await _roomService.GetByConnectionId(Context.ConnectionId);
+                var room = await _roomService.GetById(participant.RoomId);
                 if (room != null)
                 {
                     await Groups.RemoveFromGroupAsync(Context.ConnectionId, GetGroupName(room));
-                    await Clients.Group(room.Name).SendAsync("UserLeft", participant.Name);
+                    await Clients.Group(GetGroupName(room)).SendAsync("UserLeft", participant.Name);
+
+                    await _roomService.LeaveRoom(participant);
+
+                    var votingState = _roomService.GetVotingState(room);
+                    await Clients.Group(GetGroupName(room)).SendAsync("VotingState", votingState);
                 }
             }
+
             await base.OnDisconnectedAsync(exception);
         }
 

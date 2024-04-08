@@ -4,13 +4,11 @@ import {
   useJoinRoomMutation,
   useRoomDetailsQuery,
 } from "@/queries/room.queries";
-import React, { useEffect, useState } from "react";
+import React, { use, useEffect, useState } from "react";
 import * as signalR from "@microsoft/signalr";
-import { useRouter } from "next/navigation";
-import { Input } from "@/components/ui/input";
-import { VOTING_SYSTEM } from "@/model/user";
 import NicknameForm from "./nicknameForm";
 import Participants, { TParticipant } from "./participants";
+import { Button } from "@/components/ui/button";
 
 export default function Room({
   params,
@@ -20,13 +18,13 @@ export default function Room({
   };
 }) {
   const [userNickname, setUserNickname] = useState<string | null>(null);
+  const [connection, setConnection] = useState<signalR.HubConnection | null>(
+    null,
+  );
+  const [gameState, setGameState] = useState<string>(''); 
 
   // TODO: filter participants - wywalić siebie jesli jest przekazywany
-  const [participants, setParticipants] = useState<TParticipant[]>([
-    { name: "Szef", value: false },
-    { name: "Kamil 420", value: true },
-    { name: "Robert Lewandowski", value: 34 },
-  ]);
+  const [participants, setParticipants] = useState<TParticipant[]>([]);
 
   const joinRoomMutation = useJoinRoomMutation({
     onSuccess: () => {
@@ -47,45 +45,66 @@ export default function Room({
       roomId: Number(params.roomId),
       nickname: userNickname,
     });
+
+    console.log(connection);
   }, []);
 
-  // todo: wsadzić ''https://localhost:7008/' w consta gdzieś
-  const connection = new signalR.HubConnectionBuilder()
-    .withUrl("https://localhost:7008/roomHub")
-    .build();
-
+  // todo: wsadzić 'https://localhost:7008/' w consta gdzieś
   useEffect(() => {
     if (!userNickname) return;
     const startConnection = async () => {
-      if (connection.state === signalR.HubConnectionState.Disconnected) {
-        try {
-          await connection.start();
-          console.log("SignalR Connected");
-          await connection.invoke(
-            "JoinRoom",
-            Number(params.roomId),
-            userNickname,
-          );
+      try {
+        const connection = new signalR.HubConnectionBuilder()
+          .withUrl("https://localhost:7008/roomHub")
+          .build();
 
-          // have fun kozioł :>
-          connection.on("UserJoined", async (participantName) => {
-            console.log(`${participantName} joined the room!`);
-          });
+        console.log("SignalR Connected");
 
-          connection.on("VoteSubmitted", async (participantName) => {
-            console.log(`${participantName} submitted vote.`);
-          });
+        connection.on("UserJoined", async (participantName) => {
+          console.log(`${participantName} joined the room!`);
+        });
 
-          connection.on("VoteWithdrawn", async (participantName) => {
-            console.log(`${participantName} withdrawn their vote.`);
-          });
+        connection.on("UserLeft", async (participantName) => {
+          console.log(`${participantName} left the room.`);
+        });
 
-          connection.on("EveryoneVoted", async (bool) => {
-            console.log(`Voting ready to finish: ${bool}.`);
-          });
-        } catch (error) {
-          console.error("SignalR Connection Error:", error);
-        }
+        connection.on("VoteSubmitted", async (participantName) => {
+          console.log(`${participantName} submitted vote.`);
+        });
+
+        connection.on("VoteWithdrawn", async (participantName) => {
+          console.log(`${participantName} withdrawn their vote.`);
+        });
+
+        connection.on("EveryoneVoted", async (bool) => {
+          console.log(`Voting ready to finish: ${bool}.`);
+          if (bool) {
+            setGameState('finished');
+          }
+        });
+
+        connection.on("VotingState", async (votingState) => {
+          console.log("votingstate:", votingState);
+          setParticipants(votingState);
+          console.log("connection:", connection);
+        });
+
+        connection.on("VotingResults", async (votingResults) => {
+          console.log(votingResults);
+          setParticipants(votingResults);
+        });
+
+        await connection.start();
+
+        await connection.invoke(
+          "JoinRoom",
+          Number(params.roomId),
+          userNickname,
+        );
+
+        setConnection(connection);
+      } catch (error) {
+        console.error("SignalR Connection Error:", error);
       }
     };
 
@@ -93,18 +112,24 @@ export default function Room({
   }, [params.roomId, userNickname]);
 
   useEffect(() => {
-    if (!userNickname) return;
     return () => {
-      if (connection.state === signalR.HubConnectionState.Connected) {
+      setConnection(null);
+      if (connection) {
+        console.log("gowno");
+        connection.off("UserJoined");
+        connection.off("UserLeft");
         connection.off("VoteSubmitted");
         connection.off("VoteWithdrawn");
         connection.off("EveryoneVoted");
+        connection.off("VotingState");
+        connection.off("VotingResults");
         connection
           .stop()
           .then(() => console.log("SignalR connection stopped"))
           .catch((error) =>
             console.error("Error stopping SignalR connection:", error),
           );
+        setConnection(null);
       }
     };
   }, []);
@@ -114,9 +139,10 @@ export default function Room({
   const { data, isLoading, isError, error } = useRoomDetailsQuery(
     parseInt(roomId),
   );
-  console.log(data);
 
   const submitVoteHandle = async (value: string | null) => {
+    if (!connection) return;
+    console.log(value, connection.state);
     await connection.invoke(
       "SubmitVote",
       Number(params.roomId),
@@ -139,14 +165,19 @@ export default function Room({
     return <h1>No room</h1>;
   }
 
+  // todo: pokazywanie wyników po wciśnięciu przycisku
   return (
     <div>
       <h1 className="mb-8">{`Room ${params.roomId}`}</h1>
-      <Participants participants={participants} />
       <Deck
-        votingSystem={VOTING_SYSTEM.FIBONACCI}
+        votingSystem={data.votingSystem}
         submitVoteHandle={submitVoteHandle}
       ></Deck>
+      <Participants participants={participants} />
+
+      {/* <div style={{ display: 'flex', justifyContent: 'center' }}>
+        <Button disabled={gameState != 'finished'} className="mt-5">Lock Voting</Button>
+      </div> */}
     </div>
   );
 }
