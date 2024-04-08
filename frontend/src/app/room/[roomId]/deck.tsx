@@ -25,7 +25,7 @@ const Deck: React.FC<Props> = ({ votingSystem, submitVoteHandle }) => {
   // TODO: change vor values and labels
   useEffect(() => {
     if (votingSystem === VOTING_SYSTEM.FIBONACCI) {
-      setDeck(["0", "1", "2", "3", "5", "8", "13", "21", "34", "55", "89"]);
+      setDeck(["1", "2", "3", "5", "8", "13", "21", "34", "55", "89"]);
     } else if (votingSystem === VOTING_SYSTEM.TSHIRTS) {
       setDeck([
         "3XS",
@@ -38,7 +38,6 @@ const Deck: React.FC<Props> = ({ votingSystem, submitVoteHandle }) => {
         "2XL",
         "3XL",
         "4XL",
-        "5XL",
       ]);
     }
   }, [votingSystem]);
