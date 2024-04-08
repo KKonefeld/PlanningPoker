@@ -23,18 +23,17 @@ export function useRoomDetailsQuery(roomId: number) {
 }
 
 export function useCreateRoomMutation(options: {
-  onSuccess?: () => void;
-  onError?: () => void;
+  onSuccess: (data: RoomApi.CreateRoomRes) => void;
 }) {
   const queryClient = useQueryClient();
   const mutation = useMutation({
     mutationFn: RoomApi.createRoom,
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: roomKeys.rooms() });
-      options.onSuccess?.();
+      options.onSuccess(data);
     },
     onError: () => {
-      options.onError?.();
+      console.log("Error creating room");
     },
   });
   return mutation;

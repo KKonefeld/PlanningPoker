@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
-import { RoomApi } from "@/api/room-api";
 
 import { CaretSortIcon, CheckIcon } from "@radix-ui/react-icons";
 import {
@@ -33,6 +32,8 @@ import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { VOTING_SYSTEM } from "@/model/user";
+import { useCreateRoomMutation } from "@/queries/room.queries";
+import { useRouter } from "next/navigation";
 
 const votingSystems = [
   {
@@ -64,6 +65,13 @@ const formSchema = z.object({
 
 export default function CreateForm() {
   const [open, setOpen] = useState(false);
+  const router = useRouter();
+
+  const createRoomMutation = useCreateRoomMutation({
+    onSuccess: (roomId) => {
+      router.push(`/room/${roomId}`);
+    },
+  });
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -78,10 +86,10 @@ export default function CreateForm() {
     const room: any = {
       name: values.username,
       capacity: values.roomCapacity,
-      votingSystem: values.votingSystem
+      votingSystem: values.votingSystem,
     };
-    
-    RoomApi.createRoom(room);
+
+    createRoomMutation.mutate(room);
   }
 
   return (

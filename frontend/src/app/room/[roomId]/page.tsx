@@ -21,7 +21,7 @@ export default function Room({
   const [connection, setConnection] = useState<signalR.HubConnection | null>(
     null,
   );
-  const [gameState, setGameState] = useState<string>(''); 
+  const [gameState, setGameState] = useState<string>("");
 
   // TODO: filter participants - wywalić siebie jesli jest przekazywany
   const [participants, setParticipants] = useState<TParticipant[]>([]);
@@ -79,7 +79,7 @@ export default function Room({
         connection.on("EveryoneVoted", async (bool) => {
           console.log(`Voting ready to finish: ${bool}.`);
           if (bool) {
-            setGameState('finished');
+            setGameState("finished");
           }
         });
 
@@ -115,7 +115,6 @@ export default function Room({
     return () => {
       setConnection(null);
       if (connection) {
-        console.log("gowno");
         connection.off("UserJoined");
         connection.off("UserLeft");
         connection.off("VoteSubmitted");
@@ -168,7 +167,7 @@ export default function Room({
   // todo: pokazywanie wyników po wciśnięciu przycisku
   return (
     <div>
-      <h1 className="mb-8">{`Room ${params.roomId}`}</h1>
+      <h1 className="mb-8">{`Room ${data.name}`}</h1>
       <Deck
         votingSystem={data.votingSystem}
         submitVoteHandle={submitVoteHandle}
