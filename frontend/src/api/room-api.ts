@@ -21,18 +21,13 @@ export namespace RoomApi {
     votingSystem: VOTING_SYSTEM;
   }
 
-  interface CreateRoomRes {
+  export interface CreateRoomRes {
     roomId: number;
   }
 
   export const createRoom = async (params: CreateRoomReq) => {
-    try {
-      const res = await api.post<CreateRoomRes>("/rooms/create", params);
-
-      return res.data;
-    } catch (error) {
-      console.log(error);
-    }
+    const res = await api.post<CreateRoomRes>("/rooms/create", params);
+    return res.data;
   };
 
   interface JoinRoomRes {
