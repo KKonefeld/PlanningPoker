@@ -11,7 +11,7 @@ import Participants, { TParticipant } from "./participants";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import Dropzone from 'react-dropzone';
-
+import Papa from 'papaparse';
 
 export default function Room({
   params,
@@ -21,6 +21,7 @@ export default function Room({
   };
 }) {
   const [isUploadSuccessful, setIsUploadSuccessful] = useState(false);
+  const [wrongFileFormatProvided, setwrongFileFormatProvided] = useState(false);
   const [isCopied, setIsCopied] = useState(false);
   const [userNickname, setUserNickname] = useState<string | null>(null);
   const [connection, setConnection] = useState<signalR.HubConnection | null>(
@@ -36,14 +37,27 @@ export default function Room({
     const selectedFile = acceptedFiles[0];
   
     // 1. Basic validation 
-    // if (selectedFile.type !== 'text/csv') {
-    //   // Handle invalid file type error (uncomment if needed)
-    //   return;
-    // }
+    if (selectedFile.type === 'text/csv') {
+      console.log("Uploaded file:", selectedFile);
+      setIsUploadSuccessful(true)
+      // Parse the CSV file using PapaParse
+      Papa.parse(selectedFile, {
+      complete: (results) => {
+        const parsedData = results.data;
+        console.log("Parsed CSV data:", parsedData);
+        
+      }
+    });
+
+
+    }else{
+      // Not a CSV file
+      setIsUploadSuccessful(false);
+      setwrongFileFormatProvided(true);
+    }
   
     // 2. File Upload Logic (replace with your implementation):
-    console.log("Uploaded file:", selectedFile);
-    setIsUploadSuccessful(true)
+    
     // You can access the uploaded file object here
     // - selectedFile.name (original filename)
     // - selectedFile.type (MIME type)
@@ -213,36 +227,42 @@ export default function Room({
         {isCopied ? 'Link copied!' : 'Invite Participant'}
       </Button>
 
-      <Dropzone onDrop={handleFileDrop} className="dropzone">
-  {({ getRootProps, getInputProps }) => (
-    <section {...getRootProps()}>
-      <div className="dropzone-inner flex flex-col items-center justify-center py-8 px-4 border-2 border-dashed border-gray-300 rounded-md cursor-pointer hover:border-gray-500">
-        <input {...getInputProps()} />
-        <p className="dropzone-prompt text-center text-gray-700 mt-4">
-          Drag 'n' drop a CSV file from JIRA here, or click to select
-        </p>
-        {isUploadSuccessful && (
-          <div className="checkmark-container mt-4">
-            <svg
-              className="w-6 h-6 text-green-500"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M5 13l4 4L19 7"
-              />
-            </svg>
+    <Dropzone onDrop={handleFileDrop} className="dropzone">
+      {({ getRootProps, getInputProps }) => (
+        <section {...getRootProps()}>
+          <div className="dropzone-inner flex flex-col items-center justify-center py-8 px-4 border-2 border-dashed border-gray-300 rounded-md cursor-pointer hover:border-gray-500">
+            <input {...getInputProps()} />
+            <p className="dropzone-prompt text-center text-gray-700 mt-4">
+              Drag 'n' drop a CSV file from JIRA here, or click to select
+            </p>
+            {isUploadSuccessful && (
+              <div className="checkmark-container mt-4">
+                <svg
+                  className="w-6 h-6 text-green-500"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M5 13l4 4L19 7"
+                  />
+                </svg>
+              </div>
+            )}
+            {/* Display error message if applicable */}
+            {wrongFileFormatProvided && (
+              <p className="upload-error text-center text-red-500 mt-4">
+                Please upload a CSV file.
+              </p>
+            )}
           </div>
-        )}
-      </div>
-    </section>
-  )}
-</Dropzone>
+        </section>
+      )}
+    </Dropzone>
 
       <Deck
         votingSystem={data.votingSystem}
