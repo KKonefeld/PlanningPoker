@@ -18,6 +18,7 @@ export default function Room({
     roomId: string;
   };
 }) {
+  const [isCopied, setIsCopied] = useState(false);
   const [userNickname, setUserNickname] = useState<string | null>(null);
   const [connection, setConnection] = useState<signalR.HubConnection | null>(
     null,
@@ -174,6 +175,21 @@ export default function Room({
   return (
     <div>
       <h1 className="mb-8">{`Room ${data.name}`}</h1>
+
+      <Button
+        onClick={() => 
+          {
+          navigator.clipboard.writeText(window.location.href).then(() => 
+            {
+            setIsCopied(true);
+            setTimeout(() => setIsCopied(false), 1500); // Hide message after 1.5 seconds
+          });
+        }}
+        className="mt-5 focus:outline-none"
+      >
+        {isCopied ? 'Link copied!' : 'Invite Participant'}
+      </Button>
+
       <Deck
         votingSystem={data.votingSystem}
         submitVoteHandle={submitVoteHandle}

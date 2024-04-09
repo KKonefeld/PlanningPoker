@@ -11,6 +11,7 @@ export const RoomCard = ({ room }: RoomCardProps) => {
   const router = useRouter();
 
   const onJoinButtonPress = () => {
+    
     router.push(`/room/${room.id}`);
   };
 
@@ -20,7 +21,7 @@ export const RoomCard = ({ room }: RoomCardProps) => {
       className="flex min-w-60 flex-col rounded-lg bg-gray-200 p-4"
     >
       <div className="flex flex-row gap-2 border-b mb-2 border-black">
-        <h2 className="text-lg font-bold text-black ">{room.name}</h2>
+        <h2 className="text-lg font-bold text-black ">{room.name} {room.id}</h2>
         <h2 className="text-lg font-bold italic text-black/40">
           {room.votingSystem}
         </h2>
