@@ -12,7 +12,7 @@ type Props = {
 
 const Participants: React.FC<Props> = ({ participants }) => {
   return (
-    <div className="flex gap-4">
+    <div className="mt-4 flex gap-4 ">
       {participants.map((el, index) => (
         <Participant key={index} data={el} />
       ))}
