@@ -4,25 +4,20 @@ import {
   useJoinRoomMutation,
   useRoomDetailsQuery,
 } from "@/queries/room.queries";
-import React, { use, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import * as signalR from "@microsoft/signalr";
 import NicknameForm from "./nicknameForm";
 import Participants, { TParticipant } from "./participants";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
-import Dropzone from "react-dropzone";
-import Papa from "papaparse";
 
 import {
   Sheet,
   SheetContent,
-  SheetDescription,
   SheetHeader,
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import UsCard from "./usCard";
 import UsList from "./usList";
 
 export default function Room({
@@ -32,8 +27,6 @@ export default function Room({
     roomId: string;
   };
 }) {
-  const [isUploadSuccessful, setIsUploadSuccessful] = useState(false);
-  const [wrongFileFormatProvided, setwrongFileFormatProvided] = useState(false);
   const [isCopied, setIsCopied] = useState(false);
   const [userNickname, setUserNickname] = useState<string | null>(null);
   const [connection, setConnection] = useState<signalR.HubConnection | null>(
@@ -44,36 +37,6 @@ export default function Room({
   // TODO: filter participants - wywalić siebie jesli jest przekazywany
   const [participants, setParticipants] = useState<TParticipant[]>([]);
   const router = useRouter();
-
-  const handleFileDrop = (acceptedFiles: any[]) => {
-    const selectedFile = acceptedFiles[0];
-
-    // 1. Basic validation
-    if (selectedFile.type === "text/csv") {
-      console.log("Uploaded file:", selectedFile);
-      setIsUploadSuccessful(true);
-      // Parse the CSV file using PapaParse
-      Papa.parse(selectedFile, {
-        complete: (results) => {
-          const parsedData = results.data;
-          console.log("Parsed CSV data:", parsedData);
-        },
-      });
-    } else {
-      // Not a CSV file
-      setIsUploadSuccessful(false);
-      setwrongFileFormatProvided(true);
-    }
-
-    // 2. File Upload Logic (replace with your implementation):
-
-    // You can access the uploaded file object here
-    // - selectedFile.name (original filename)
-    // - selectedFile.type (MIME type)
-    // - selectedFile.size (file size in bytes)
-
-    // Implement your file upload logic here (e.g., send to server)
-  };
 
   const joinRoomMutation = useJoinRoomMutation({
     onSuccess: () => {
@@ -220,75 +183,45 @@ export default function Room({
   // todo: pokazywanie wyników po wciśnięciu przycisku
   return (
     <div className="relative">
-      <h1 className="mb-8">{`Room ${data.name}`}</h1>
-
-      <div className="flex gap-2">
-        <Button
-          onClick={() => {
-            navigator.clipboard.writeText(window.location.href).then(() => {
-              setIsCopied(true);
-              setTimeout(() => setIsCopied(false), 1500); // Hide message after 1.5 seconds
-            });
-          }}
-        >
-          {isCopied ? "Link copied!" : "Invite Participant"}
-        </Button>
-        <Sheet>
-          <SheetTrigger className="">
-            <Button>Show User Stories</Button>
-          </SheetTrigger>
-          <SheetContent className="flex flex-col">
-            <SheetHeader>
-              <SheetTitle>User Stories</SheetTitle>
-            </SheetHeader>
-            <UsList />
-          </SheetContent>
-        </Sheet>
+      <div className="mb-4 flex items-center justify-between border-b-2 border-white pb-4">
+        <h1 className="mr-4">{`Room ${data.name}`}</h1>
+        <div className="flex gap-4">
+          <Button
+            onClick={() => {
+              navigator.clipboard.writeText(window.location.href).then(() => {
+                setIsCopied(true);
+                setTimeout(() => setIsCopied(false), 1500); // Hide message after 1.5 seconds
+              });
+            }}
+          >
+            {isCopied ? "Link copied!" : "Invite Participant"}
+          </Button>
+          <Sheet>
+            <SheetTrigger className="">
+              <Button>Show User Stories</Button>
+            </SheetTrigger>
+            <SheetContent className="flex flex-col">
+              <SheetHeader>
+                <SheetTitle>User Stories</SheetTitle>
+              </SheetHeader>
+              <UsList />
+            </SheetContent>
+          </Sheet>
+        </div>
       </div>
 
+      <h2>Participants</h2>
       <Participants participants={participants} />
 
+      <div className="my-8 flex w-full items-center justify-center rounded-2xl border-2 border-white py-20">
+        {gameState}
+      </div>
+
+      <h2>Your deck</h2>
       <Deck
         votingSystem={data.votingSystem}
         submitVoteHandle={submitVoteHandle}
       ></Deck>
-
-      <Dropzone onDrop={handleFileDrop}>
-        {({ getRootProps, getInputProps }) => (
-          <section {...getRootProps()}>
-            <div className="dropzone-inner flex cursor-pointer flex-col items-center justify-center rounded-md border-2 border-dashed border-gray-300 px-4 py-8 hover:border-gray-500">
-              <input {...getInputProps()} />
-              <p className="dropzone-prompt mt-4 text-center text-gray-700">
-                Drag 'n' drop a CSV file from JIRA here, or click to select
-              </p>
-              {isUploadSuccessful && (
-                <div className="checkmark-container mt-4">
-                  <svg
-                    className="h-6 w-6 text-green-500"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M5 13l4 4L19 7"
-                    />
-                  </svg>
-                </div>
-              )}
-              {/* Display error message if applicable */}
-              {wrongFileFormatProvided && (
-                <p className="upload-error mt-4 text-center text-red-500">
-                  Please upload a CSV file.
-                </p>
-              )}
-            </div>
-          </section>
-        )}
-      </Dropzone>
 
       {/* <div style={{ display: 'flex', justifyContent: 'center' }}>
         <Button disabled={gameState != 'finished'} className="mt-5">Lock Voting</Button>
