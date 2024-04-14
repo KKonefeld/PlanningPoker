@@ -1,6 +1,7 @@
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useUserStoryListQuery } from "@/queries/userstory.queries";
 import UsCard from "./usCard";
+import DropzoneComponent from "./dropzone";
 
 const UsList: React.FC = () => {
   const { data, isLoading, isError, error } = useUserStoryListQuery();
@@ -15,11 +16,15 @@ const UsList: React.FC = () => {
     return <h1>No room</h1>;
   }
   return (
-    <ScrollArea className="h-full">
-      <div className="flex flex-col gap-4">
-        {data?.map((el) => <UsCard key={el.id} data={el} />)}
-      </div>
-    </ScrollArea>
+    <>
+      <ScrollArea className="h-full">
+        <div className="flex flex-col gap-4">
+          {data?.map((el) => <UsCard key={el.id} data={el} />)}
+        </div>
+      </ScrollArea>
+      <hr className="border-white/50 " />
+      <DropzoneComponent />
+    </>
   );
 };
 
