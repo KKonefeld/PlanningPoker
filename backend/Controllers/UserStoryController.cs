@@ -32,5 +32,32 @@ namespace PlanningPoker.Controllers
 
             return Ok(userStory);
         }
+
+        [HttpGet("export/{roomId}")]
+        public async Task<IActionResult> ExportUserStories([FromRoute] int roomId)
+        {
+            var memoryStream = await _userStoryService.ExportUserStories(roomId);
+
+            if (memoryStream == null)
+                return BadRequest("No user stories in that room");
+
+            var fileName = $"user_stories_{roomId}.csv";
+
+            return File(memoryStream, "text/csv", fileName);
+        }
+
+        [HttpPost("import/{roomId}")]
+        public async Task<IActionResult> ImportUserStories([FromRoute] int roomId, [FromForm] IFormFile file)
+        {
+            if (file.Length == 0)
+                return BadRequest("File empty");
+
+            var success = await _userStoryService.ImportUserStories(roomId, file);
+
+            if (!success)
+                return BadRequest("Importing user stories failed");
+            
+            return Ok("Import successful");
+        }
     }
 }
