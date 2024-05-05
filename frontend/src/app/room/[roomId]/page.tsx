@@ -18,7 +18,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import UsList from "./usList";
+import UsList from "./userStories/usList";
 import { UserStoryApi } from "@/api/userstory-api";
 import { UserStory } from "@/model/userstory";
 
@@ -244,18 +244,22 @@ export default function Room({
       "AddUserStory",
       Number(params.roomId),
       title,
-      description
+      description,
     );
   };
 
-  const updateUserStoryHandle = async (userStoryId:number, title: string, description: string) => {
+  const updateUserStoryHandle = async (
+    userStoryId: number,
+    title: string,
+    description: string,
+  ) => {
     if (!connection) return;
     await connection.invoke(
-      "CreateUserStory",
+      "UpdateUserStory",
       Number(params.roomId),
       userStoryId,
       title,
-      description
+      description,
     );
   };
 
@@ -264,29 +268,38 @@ export default function Room({
     await connection.invoke(
       "DeleteUserStory",
       Number(params.roomId),
-      userStoryId      
+      userStoryId,
     );
   };
 
-  const createUserStoryTaskHandle = async (userStoryId: number, title: string, description: string) => {
+  const createUserStoryTaskHandle = async (
+    userStoryId: number,
+    title: string,
+    description: string,
+  ) => {
     if (!connection) return;
     await connection.invoke(
       "CreateUserStoryTask",
       Number(params.roomId),
       userStoryId,
       title,
-      description
+      description,
     );
   };
 
-  const updateUserStoryTaskHandle = async (userStoryId: number, userStoryTaskId: number, title: string, description: string) => {
+  const updateUserStoryTaskHandle = async (
+    userStoryId: number,
+    userStoryTaskId: number,
+    title: string,
+    description: string,
+  ) => {
     if (!connection) return;
     await connection.invoke(
       "UpdateUserStoryTask",
       Number(params.roomId),
       userStoryTaskId,
       title,
-      description
+      description,
     );
   };
 
@@ -295,7 +308,7 @@ export default function Room({
     await connection.invoke(
       "DeleteUserStoryTask",
       Number(params.roomId),
-      userStoryTaskId
+      userStoryTaskId,
     );
   };
 
@@ -337,7 +350,13 @@ export default function Room({
               <SheetHeader>
                 <SheetTitle>User Stories</SheetTitle>
               </SheetHeader>
-              <UsList roomId={Number(params.roomId)} createUserStoryHandle={addUserStoryHandle}/>
+              <UsList
+                roomId={Number(params.roomId)}
+                createUserStoryHandle={addUserStoryHandle}
+                deleteUserStoryHandle={deleteUserStoryHandle}
+                updateUserStoryHandle={updateUserStoryHandle}
+                addUserStoryHandle={addUserStoryHandle}
+              />
             </SheetContent>
           </Sheet>
         </div>
