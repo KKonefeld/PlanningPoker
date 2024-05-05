@@ -1,7 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.Text;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using PlanningPoker.Models.UserStory;
 using PlanningPoker.Persistence;
-using UserStory = PlanningPoker.Models.UserStory.UserStory;
 
 namespace PlanningPoker.Services.UserStoryService
 {
@@ -222,6 +223,90 @@ namespace PlanningPoker.Services.UserStoryService
 
                 return false;
             }
+        }
+
+        public async Task<MemoryStream?> ExportUserStories(int roomId)
+        {
+            var userStories = await GetUserStories(roomId);
+
+            if (!userStories.Any())
+                return null;
+            
+            var memoryStream = new MemoryStream();
+            var streamWriter = new StreamWriter(memoryStream, Encoding.UTF8);
+
+            await streamWriter.WriteLineAsync("Title,Description,Tasks");
+
+            foreach (var userStory in userStories)
+            {
+                var tasksCsv = string.Join("|", userStory.Tasks.Select(t => t.ToCsvString()));
+                await streamWriter.WriteLineAsync($"{userStory.Title},{userStory.Description},{tasksCsv}");
+            }
+
+            await streamWriter.FlushAsync();
+            memoryStream.Seek(0, SeekOrigin.Begin);
+
+            return memoryStream;
+        }
+
+        public async Task<bool> ImportUserStories(int roomId, IFormFile file)
+        {
+            try
+            {
+                using (var streamReader = new StreamReader(file.OpenReadStream(), Encoding.UTF8))
+                {
+                    await streamReader.ReadLineAsync();
+
+                    while (!streamReader.EndOfStream)
+                    {
+                        var line = await streamReader.ReadLineAsync();
+
+                        if (string.IsNullOrEmpty(line))
+                            continue;
+
+                        var parts = line.Split(',');
+
+                        var title = parts[0];
+                        var description = parts[1];
+
+                        var newUserStory = new UserStory
+                        {
+                            Title = title,
+                            Description = description,
+                            RoomId = roomId
+                        };
+
+                        await AddUserStory(newUserStory);
+
+                        if (string.IsNullOrWhiteSpace(parts[2]))
+                            continue;
+
+                        var tasks = parts[2].Split("|").ToList();
+
+                        var userStoryTasks = tasks.Select(csvTask => new UserStoryTask(newUserStory.Id, csvTask)).ToList();
+                        await _dbContext.UserStoryTasks.AddRangeAsync(userStoryTasks);
+
+                    }
+                }
+
+                await _dbContext.SaveChangesAsync();
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                
+                return false;
+            }
+        }
+
+        private async Task<IList<UserStory>> GetUserStories(int roomId)
+        {
+            return await _dbContext.UserStories
+                .Include(us => us.Tasks)
+                .Where(us => us.RoomId == roomId)
+                .ToListAsync();
         }
     }
 }

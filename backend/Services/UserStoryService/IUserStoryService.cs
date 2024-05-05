@@ -1,4 +1,5 @@
-﻿using PlanningPoker.Models.UserStory;
+﻿using Microsoft.AspNetCore.Mvc;
+using PlanningPoker.Models.UserStory;
 
 namespace PlanningPoker.Services.UserStoryService
 {
@@ -16,5 +17,8 @@ namespace PlanningPoker.Services.UserStoryService
         Task<bool> CreateUserStoryTask(UserStoryTask task);
         Task<bool> UpdateUserStoryTask(int userStoryTaskId, string title, string description);
         Task<bool> DeleteUserStoryTask(int userStoryTaskId);
+
+        Task<MemoryStream?> ExportUserStories(int roomId);
+        Task<bool> ImportUserStories(int roomId, IFormFile file);
     }
 }

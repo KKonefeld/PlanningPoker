@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import Dropzone from "react-dropzone";
 import Papa from "papaparse";
 import { Modal, Table, Checkbox, Button } from "antd";
+import { UserStoryApi } from "@/api/userstory-api";
 
 const DropzoneComponent: React.FC = () => {
   const [isUploadSuccessful, setIsUploadSuccessful] = useState(false);
@@ -10,9 +11,6 @@ const DropzoneComponent: React.FC = () => {
   const [csvData, setCsvData] = useState<any[]>([]); // State to store CSV data
   const [modalVisible, setModalVisible] = useState(false); // State to manage modal visibility
   const tableRef = useRef<HTMLTableElement>(null);
-
-  
-  
 
   const handleFileDrop = (acceptedFiles: any[]) => {
     const selectedFile = acceptedFiles[0];
@@ -37,12 +35,8 @@ const DropzoneComponent: React.FC = () => {
       setIsUploadSuccessful(false);
       setwrongFileFormatProvided(true);
     }
-
-
   };
-
   
-
   const showModal = () => {
     setModalVisible(true);
     // Calculate table width and set modal width (when modal opens)
@@ -51,6 +45,12 @@ const DropzoneComponent: React.FC = () => {
       setModalWidth(tableWidth); // Update modal state (optional)
     }
   };
+
+  const importUserStories = () => {
+    const result = UserStoryApi.importUserStories(7, csvData);
+    console.log("Import result:", result);
+  }
+
   const [modalWidth, setModalWidth] = useState(0);
 
   const closeModal = () => {
@@ -115,6 +115,9 @@ const DropzoneComponent: React.FC = () => {
       </Dropzone>
       <Button onClick={showModal} disabled={!isUploadSuccessful}>
         View CSV Data
+      </Button>
+      <Button onClick={importUserStories} disabled={!isUploadSuccessful}>
+        Import
       </Button>
       <Modal
         title="CSV Data"
