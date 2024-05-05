@@ -1,4 +1,4 @@
-import { UserStory } from "@/model/userstory";
+import { UserStory, UserStoryTask } from "@/model/userstory";
 import {
   Dialog,
   DialogContent,
@@ -24,8 +24,19 @@ const UsCard: React.FC<Props> = ({ data }) => {
         <DialogContent className="bg-background text-white">
           <DialogHeader>
             <DialogTitle>{data.title}</DialogTitle>
-            <DialogDescription>Sample Description</DialogDescription>
+            <DialogDescription>{data.description}</DialogDescription>
           </DialogHeader>
+          {data.tasks.length > 0 && (
+            <div>
+              <p>Tasks:</p>
+              {data.tasks.map((task: UserStoryTask) => (
+                <div key={task.id}>
+                  <p>{task.title}</p>
+                  <p>{task.description}</p>
+                </div>
+              ))}
+            </div>
+          )}
         </DialogContent>
       </Dialog>
     </div>

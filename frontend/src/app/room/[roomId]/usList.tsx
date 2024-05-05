@@ -2,9 +2,19 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { useUserStoryListQuery } from "@/queries/userstory.queries";
 import UsCard from "./usCard";
 import DropzoneComponent from "./dropzone";
+import { Button } from "@/components/ui/button";
 
-const UsList: React.FC = () => {
-  const { data, isLoading, isError, error } = useUserStoryListQuery();
+type Props = {
+  roomId: number;
+  createUserStoryHandle: (title: string, description: string) => void;
+};
+
+const UsList: React.FC<Props> = ({ roomId, createUserStoryHandle }) => {
+  const { data, isLoading, isError, error } = useUserStoryListQuery(roomId);
+  
+  const handleclick = () => {
+    createUserStoryHandle('New User Story', 'New Description');
+  };
 
   if (isLoading) {
     return <h1>Loading...</h1>;
@@ -18,6 +28,11 @@ const UsList: React.FC = () => {
   return (
     <>
       <ScrollArea className="h-full">
+      <Button
+        onClick={handleclick}
+      >
+        Create New User Story
+      </Button>
         <div className="flex flex-col gap-4">
           {data?.map((el) => <UsCard key={el.id} data={el} />)}
         </div>

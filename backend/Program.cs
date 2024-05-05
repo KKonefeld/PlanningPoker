@@ -1,6 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using PlanningPoker.Persistence;
+using PlanningPoker.Services.ParticipantService;
 using PlanningPoker.Services.RoomService;
+using PlanningPoker.Services.UserStoryService;
 using PlanningPoker.SignalR.Hubs;
 
 namespace PlanningPoker
@@ -26,6 +28,9 @@ namespace PlanningPoker
 
             // Add services to the container.
             builder.Services.AddScoped<IRoomService, RoomService>();
+            builder.Services.AddScoped<IParticipantService, ParticipantService>();
+            builder.Services.AddScoped<IUserStoryService, UserStoryService>();
+
             try
             {
                 var connectionString = builder.Configuration.GetConnectionString("PlanningPokerDb");

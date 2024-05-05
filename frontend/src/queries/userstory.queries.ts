@@ -1,16 +1,15 @@
-import { RoomApi } from "@/api/room-api";
 import { UserStoryApi } from "@/api/userstory-api";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 const userStoryKeys = {
-  userStories: () => ["userstory", "list"],
+  userStories: (roomId: number) => ["userstory", roomId],
   userStory: (userStoryId: number) => ["userstory", userStoryId],
 };
 
-export function useUserStoryListQuery() {
+export function useUserStoryListQuery(roomId: number) {
   const query = useQuery({
-    queryKey: userStoryKeys.userStories(),
-    queryFn: UserStoryApi.getUserStories,
+    queryKey: userStoryKeys.userStories(roomId),
+    queryFn: () => UserStoryApi.listUserStories(roomId),
   });
   return query;
 }

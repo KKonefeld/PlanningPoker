@@ -38,7 +38,7 @@ namespace PlanningPoker.Controllers
         [HttpGet("{roomId}")]
         public async Task<IActionResult> Get([FromRoute] int roomId)
         {
-            var room = await _roomService.GetById(roomId);
+            var room = await _roomService.GetRoomById(roomId);
 
             if (room == null)
                 return NotFound("Room with given id was not found");
@@ -84,7 +84,7 @@ namespace PlanningPoker.Controllers
         [HttpGet("participants/{roomId}")]
         public async Task<IActionResult> GetParticipants([FromRoute] int roomId)
         {
-            var room = await _roomService.GetById(roomId);
+            var room = await _roomService.GetRoomById(roomId);
             if (room == null)
                 return NotFound($"Room { roomId } was not found");
 
@@ -95,7 +95,7 @@ namespace PlanningPoker.Controllers
         [HttpGet("{roomId}/voting-state")]
         public async Task<IActionResult> GetVotingState([FromRoute] int roomId)
         {
-            var room = await _roomService.GetById(roomId);
+            var room = await _roomService.GetRoomById(roomId);
             
             if (room == null)
                 return NotFound($"Room { roomId } was not found");

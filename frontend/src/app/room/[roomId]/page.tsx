@@ -19,6 +19,8 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import UsList from "./usList";
+import { UserStoryApi } from "@/api/userstory-api";
+import { UserStory } from "@/model/userstory";
 
 export default function Room({
   params,
@@ -36,6 +38,7 @@ export default function Room({
 
   // TODO: filter participants - wywalić siebie jesli jest przekazywany
   const [participants, setParticipants] = useState<TParticipant[]>([]);
+  const [userStories, setUserStories] = useState<UserStory[]>([]);
   const router = useRouter();
 
   const joinRoomMutation = useJoinRoomMutation({
@@ -110,6 +113,61 @@ export default function Room({
           setParticipants(votingResults);
         });
 
+        connection.on("UserStoryAdded", async (userStories) => {
+          setUserStories(userStories);
+        });
+
+        connection.on("CreatingUserStoryFailed", async (userStories) => {
+          // todo: wyświetlić alert o błędzie
+          console.log("Creating user story failed");
+        });
+
+        // todo: przyciski do edycji i usuwania user story
+        connection.on("UserStoryUpdated", async (userStories) => {
+          setUserStories(userStories);
+        });
+
+        connection.on("UpdatingUserStoryFailed", async () => {
+          // todo: wyświetlić alert o błędzie
+          console.log("Updating user story failed");
+        });
+
+        connection.on("UserStoryDeleted", async (userStories) => {
+          setUserStories(userStories);
+        });
+
+        connection.on("DeletingUserStoryFailed", async () => {
+          // todo: wyświetlić alert o błędzie
+          console.log("Deleting user story failed");
+        });
+
+        connection.on("UserStoryTaskCreated", async (userStories) => {
+          setUserStories(userStories);
+        });
+
+        connection.on("CreatingUserStoryTaskFailed", async () => {
+          // todo: wyświetlić alert o błędzie
+          console.log("Creating user story task failed");
+        });
+
+        connection.on("UserStoryTaskUpdated", async (userStories) => {
+          setUserStories(userStories);
+        });
+
+        connection.on("UpdatingUserStoryTaskFailed", async () => {
+          // todo: wyświetlić alert o błędzie
+          console.log("Updating user story task failed");
+        });
+
+        connection.on("UserStoryTaskDeleted", async (userStories) => {
+          setUserStories(userStories);
+        });
+
+        connection.on("DeletingUserStoryTaskFailed", async () => {
+          // todo: wyświetlić alert o błędzie
+          console.log("Deleting user story task failed");
+        });
+
         await connection.start();
 
         await connection.invoke(
@@ -138,6 +196,20 @@ export default function Room({
         connection.off("EveryoneVoted");
         connection.off("VotingState");
         connection.off("VotingResults");
+
+        connection.off("UserStoryAdded");
+        connection.off("CreatingUserStoryFailed");
+        connection.off("UserStoryUpdated");
+        connection.off("UpdatingUserStoryFailed");
+        connection.off("UserStoryDeleted");
+        connection.off("DeletingUserStoryFailed");
+
+        connection.off("UserStoryTaskCreated");
+        connection.off("CreatingUserStoryTaskFailed");
+        connection.off("UserStoryTaskUpdated");
+        connection.off("UpdatingUserStoryTaskFailed");
+        connection.off("UserStoryTaskDeleted");
+        connection.off("DeletingUserStoryTaskFailed");
         connection
           .stop()
           .then(() => console.log("SignalR connection stopped"))
@@ -163,6 +235,67 @@ export default function Room({
       Number(params.roomId),
       userNickname,
       value,
+    );
+  };
+
+  const addUserStoryHandle = async (title: string, description: string) => {
+    if (!connection) return;
+    await connection.invoke(
+      "AddUserStory",
+      Number(params.roomId),
+      title,
+      description
+    );
+  };
+
+  const updateUserStoryHandle = async (userStoryId:number, title: string, description: string) => {
+    if (!connection) return;
+    await connection.invoke(
+      "CreateUserStory",
+      Number(params.roomId),
+      userStoryId,
+      title,
+      description
+    );
+  };
+
+  const deleteUserStoryHandle = async (userStoryId: number) => {
+    if (!connection) return;
+    await connection.invoke(
+      "DeleteUserStory",
+      Number(params.roomId),
+      userStoryId      
+    );
+  };
+
+  const createUserStoryTaskHandle = async (userStoryId: number, title: string, description: string) => {
+    if (!connection) return;
+    await connection.invoke(
+      "CreateUserStoryTask",
+      Number(params.roomId),
+      userStoryId,
+      title,
+      description
+    );
+  };
+
+  const updateUserStoryTaskHandle = async (userStoryId: number, userStoryTaskId: number, title: string, description: string) => {
+    if (!connection) return;
+    await connection.invoke(
+      "UpdateUserStoryTask",
+      Number(params.roomId),
+      userStoryTaskId,
+      title,
+      description
+    );
+  };
+
+  const deleteUserStoryTaskHandle = async (userStoryTaskId: number) => {
+    if (!connection) return;
+    await connection.invoke(
+      "DeleteUserStoryTask",
+      Number(params.roomId),
+      userStoryTaskId
     );
   };
 
@@ -204,7 +337,7 @@ export default function Room({
               <SheetHeader>
                 <SheetTitle>User Stories</SheetTitle>
               </SheetHeader>
-              <UsList />
+              <UsList roomId={Number(params.roomId)} createUserStoryHandle={addUserStoryHandle}/>
             </SheetContent>
           </Sheet>
         </div>
