@@ -4,6 +4,7 @@ import UsCard from "./usCard";
 import DropzoneComponent from "../dropzone";
 import { Button } from "@/components/ui/button";
 import CreateUsDialog from "./createUsDialog";
+import { UserStoryTask } from "@/model/userstory";
 
 type Props = {
   roomId: number;
@@ -15,6 +16,18 @@ type Props = {
     description: string,
   ) => void;
   addUserStoryHandle: (title: string, description: string) => void;
+  createUserStoryTaskHandle: (
+    userStoryId: number,
+    title: string,
+    description: string,
+  ) => void;
+  deleteUserStoryTaskHandle: (id: number) => void;
+  updateUserStoryTaskHandle: (
+    id: number,
+    title: string,
+    description: string,
+  ) => void;
+  setVotedTaskHandle: (task: UserStoryTask) => void;
 };
 
 const UsList: React.FC<Props> = ({
@@ -23,6 +36,10 @@ const UsList: React.FC<Props> = ({
   deleteUserStoryHandle,
   updateUserStoryHandle,
   addUserStoryHandle,
+  createUserStoryTaskHandle,
+  deleteUserStoryTaskHandle,
+  updateUserStoryTaskHandle,
+  setVotedTaskHandle,
 }) => {
   const { data, isLoading, isError, error } = useUserStoryListQuery(roomId);
 
@@ -51,6 +68,10 @@ const UsList: React.FC<Props> = ({
               data={el}
               deleteUserStoryHandle={deleteUserStoryHandle}
               updateUserStoryHandle={updateUserStoryHandle}
+              createUserStoryTaskHandle={createUserStoryTaskHandle}
+              deleteUserStoryTaskHandle={deleteUserStoryTaskHandle}
+              updateUserStoryTaskHandle={updateUserStoryTaskHandle}
+              setVotedTaskHandle={setVotedTaskHandle}
             />
           ))}
         </div>

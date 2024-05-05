@@ -14,3 +14,15 @@ h1 {
 h2 {
   @apply text-3xl font-bold text-white;
 }
+h3 {
+  @apply text-[2rem] font-semibold;
+}
+h4 {
+  @apply text-[1.5rem] font-semibold;
+}
+h5 {
+  @apply text-[1.25rem] font-semibold;
+}
+h6 {
+  @apply text-[1rem] font-semibold;
+}

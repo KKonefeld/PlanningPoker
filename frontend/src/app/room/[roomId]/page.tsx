@@ -20,7 +20,7 @@ import {
 } from "@/components/ui/sheet";
 import UsList from "./userStories/usList";
 import { UserStoryApi } from "@/api/userstory-api";
-import { UserStory } from "@/model/userstory";
+import { UserStory, UserStoryTask } from "@/model/userstory";
 
 export default function Room({
   params,
@@ -39,6 +39,9 @@ export default function Room({
   // TODO: filter participants - wywalić siebie jesli jest przekazywany
   const [participants, setParticipants] = useState<TParticipant[]>([]);
   const [userStories, setUserStories] = useState<UserStory[]>([]);
+
+  const [votedTask, setVotedTask] = useState<UserStoryTask | null>(null);
+
   const router = useRouter();
 
   const joinRoomMutation = useJoinRoomMutation({
@@ -288,7 +291,6 @@ export default function Room({
   };
 
   const updateUserStoryTaskHandle = async (
-    userStoryId: number,
     userStoryTaskId: number,
     title: string,
     description: string,
@@ -310,6 +312,10 @@ export default function Room({
       Number(params.roomId),
       userStoryTaskId,
     );
+  };
+
+  const setVotedTaskHandle = (task: UserStoryTask) => {
+    setVotedTask(task);
   };
 
   if (!userNickname) {
@@ -356,6 +362,10 @@ export default function Room({
                 deleteUserStoryHandle={deleteUserStoryHandle}
                 updateUserStoryHandle={updateUserStoryHandle}
                 addUserStoryHandle={addUserStoryHandle}
+                createUserStoryTaskHandle={createUserStoryTaskHandle}
+                deleteUserStoryTaskHandle={deleteUserStoryTaskHandle}
+                updateUserStoryTaskHandle={updateUserStoryTaskHandle}
+                setVotedTaskHandle={setVotedTaskHandle}
               />
             </SheetContent>
           </Sheet>
@@ -366,6 +376,7 @@ export default function Room({
       <Participants participants={participants} />
 
       <div className="my-8 flex w-full items-center justify-center rounded-2xl border-2 border-white py-20">
+        {votedTask?.title}
         {gameState}
       </div>
 

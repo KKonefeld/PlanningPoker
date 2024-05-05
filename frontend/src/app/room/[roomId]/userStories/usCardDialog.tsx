@@ -13,6 +13,8 @@ import { useRef, useState } from "react";
 import { UserStory, UserStoryTask } from "@/model/userstory";
 
 import { Label } from "@/components/ui/label";
+import { ChevronDown, ChevronUp, Plus } from "lucide-react";
+import UsTask from "./usTask";
 
 type Props = {
   data: UserStory;
@@ -22,18 +24,51 @@ type Props = {
     title: string,
     description: string,
   ) => void;
+  createUserStoryTaskHandle: (
+    userStoryId: number,
+    title: string,
+    description: string,
+  ) => void;
+  deleteUserStoryTaskHandle: (id: number) => void;
+  updateUserStoryTaskHandle: (
+    id: number,
+    title: string,
+    description: string,
+  ) => void;
+  setVotedTaskHandle: (task: UserStoryTask) => void;
 };
 
 const UsCardDialog: React.FC<Props> = ({
   data,
   deleteUserStoryHandle,
   updateUserStoryHandle,
+  createUserStoryTaskHandle,
+  deleteUserStoryTaskHandle,
+  updateUserStoryTaskHandle,
+  setVotedTaskHandle,
 }) => {
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [isOpen, setIsOpen] = useState<boolean>(false);
+  const [showAddTask, setShowAddTask] = useState<boolean>(false);
 
   const titleRef = useRef<HTMLInputElement>(null);
   const descRef = useRef<HTMLInputElement>(null);
+  const taskTitleRef = useRef<HTMLInputElement>(null);
+  const taskDescRef = useRef<HTMLInputElement>(null);
+
+  const handleShowAddTask = () => {
+    setShowAddTask(!showAddTask);
+  };
+
+  const handleAddTask = () => {
+    if (taskTitleRef.current && taskDescRef.current) {
+      createUserStoryTaskHandle(
+        data.id,
+        taskTitleRef.current.value,
+        taskDescRef.current.value,
+      );
+    }
+  };
 
   const handleToggle = (status: boolean = true) => {
     setIsEditing(false);
@@ -89,16 +124,40 @@ const UsCardDialog: React.FC<Props> = ({
             )}
           </DialogDescription>
         </DialogHeader>
-        {data.tasks.length > 0 && (
+        <div className="flex items-center justify-between">
+          <h4>Tasks:</h4>
+          {isEditing ? (
+            <Button size="action" onClick={handleShowAddTask}>
+              {showAddTask ? <ChevronUp /> : <ChevronDown />}
+            </Button>
+          ) : null}
+        </div>
+        {showAddTask && isEditing ? (
           <div>
-            <p>Tasks:</p>
+            <Label className="text-sm text-white">Title</Label>
+            <Input className="mb-4 mt-2" ref={taskTitleRef} />
+            <Label className="text-sm text-white">Description</Label>
+            <Input className="mb-4 mt-2" ref={taskDescRef} />
+            <Button size="sm" onClick={handleAddTask}>
+              Add Task
+            </Button>
+          </div>
+        ) : null}
+        {data.tasks.length > 0 ? (
+          <div>
             {data.tasks.map((task: UserStoryTask) => (
-              <div key={task.id}>
-                <p>{task.title}</p>
-                <p>{task.description}</p>
-              </div>
+              <UsTask
+                key={task.id}
+                data={task}
+                isEditing={isEditing}
+                deleteUserStoryTaskHandle={deleteUserStoryTaskHandle}
+                updateUserStoryTaskHandle={updateUserStoryTaskHandle}
+                setVotedTaskHandle={setVotedTaskHandle}
+              />
             ))}
           </div>
+        ) : (
+          "No tasks to display."
         )}
 
         <DialogFooter>
