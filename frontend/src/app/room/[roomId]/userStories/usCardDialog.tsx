@@ -92,6 +92,7 @@ const UsCardDialog: React.FC<Props> = ({
         <Button onClick={() => handleToggle(true)} size="sm">
           Show Details
         </Button>
+      
       </DialogTrigger>
       <DialogContent className="bg-background text-white">
         <DialogHeader>

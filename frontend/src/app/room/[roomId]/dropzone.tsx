@@ -2,8 +2,9 @@
 import { useEffect, useRef, useState } from "react";
 import Dropzone from "react-dropzone";
 import Papa from "papaparse";
-import { Modal, Table, Checkbox, Button } from "antd";
+import { Modal, Table, Checkbox } from "antd";
 import { UserStoryApi } from "@/api/userstory-api";
+import { Button } from "@/components/ui/button";
 
 const DropzoneComponent: React.FC = () => {
   const [isUploadSuccessful, setIsUploadSuccessful] = useState(false);
@@ -57,6 +58,28 @@ const DropzoneComponent: React.FC = () => {
       console.log("Import result:", result);
     } else {
       console.error("Error: Could not extract room ID from URL");
+    }
+  };
+
+  const exportUserStories = async () => {
+    // Extract room ID from URL (assuming consistent format)
+    const url = window.location.href;
+    const roomIdMatch = url.match(/\/room\/(\d+)/);
+    const roomId = roomIdMatch ? parseInt(roomIdMatch[1]) : null;
+
+    if (!roomId) {
+      console.error("Error: Could not extract room ID from URL");
+      return; // Exit if room ID cannot be found
+    }
+
+    try {
+      const result = UserStoryApi.exportUserStories(roomId);
+      console.log("Export result:", result);
+      console.log("User stories exported successfully!");
+      
+    } catch (error) {
+      console.error("Error exporting user stories:", error);
+      // Handle errors appropriately (e.g., display error message to user)
     }
   };
 
@@ -128,6 +151,9 @@ const DropzoneComponent: React.FC = () => {
       <Button onClick={importUserStories} disabled={!isUploadSuccessful}>
         Import
       </Button>
+      <Button onClick={exportUserStories} disabled={!isUploadSuccessful}>
+        Export
+      </Button>
       <Modal
         title="CSV Data"
         open={modalVisible}
@@ -139,6 +165,7 @@ const DropzoneComponent: React.FC = () => {
           <Button key="confirm" onClick={closeModal}>
             Confirm
           </Button>,
+
         ]}
         width={modalWidth || "auto"} // Use modal state or 'auto'
       >
