@@ -112,7 +112,7 @@ namespace PlanningPoker.SignalR.Hubs
                 await Clients.Caller.SendAsync("CreatingUserStoryFailed");
         }
 
-        public async Task UpadateUserStory(int roomId, int userStoryId, string name, string description)
+        public async Task UpdateUserStory(int roomId, int userStoryId, string name, string description)
         {
             var room = await _roomService.GetRoomById(roomId);
 
