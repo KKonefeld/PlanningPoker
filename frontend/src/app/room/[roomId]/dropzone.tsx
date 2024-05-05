@@ -47,9 +47,18 @@ const DropzoneComponent: React.FC = () => {
   };
 
   const importUserStories = () => {
-    const result = UserStoryApi.importUserStories(7, csvData);
-    console.log("Import result:", result);
-  }
+    // Extract room ID from URL (assuming URL format is consistent)
+    const url = window.location.href;
+    const roomIdMatch = url.match(/\/room\/(\d+)/);
+    const roomId = roomIdMatch ? parseInt(roomIdMatch[1]) : null; // Parse as integer
+    console.log("Room ID:", roomId);
+    if (roomId) {
+      const result = UserStoryApi.importUserStories(roomId, csvData);
+      console.log("Import result:", result);
+    } else {
+      console.error("Error: Could not extract room ID from URL");
+    }
+  };
 
   const [modalWidth, setModalWidth] = useState(0);
 
