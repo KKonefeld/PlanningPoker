@@ -165,7 +165,7 @@ const DropzoneComponent: React.FC = () => {
       <Button onClick={importUserStories} disabled={!isUploadSuccessful}>
         Import
       </Button>
-      <Button onClick={exportUserStories} disabled={!isUploadSuccessful}>
+      <Button onClick={exportUserStories}>
         Export
       </Button>
       <Modal
