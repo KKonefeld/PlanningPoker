@@ -36,9 +36,12 @@ export default function Room({
   const roomId = Number(params.roomId);
   const [isCopied, setIsCopied] = useState(false);
   const [userNickname, setUserNickname] = useState<string | null>(null);
-  const [connection, setConnection] = useState<signalR.HubConnection | null>(
-    null,
+  const [connection, setConnection] = useState(
+    new signalR.HubConnectionBuilder()
+      .withUrl("https://localhost:7008/roomHub")
+      .build(),
   );
+
   const [gameState, setGameState] = useState<string>("");
 
   // TODO: filter participants - wywalić siebie jesli jest przekazywany
@@ -77,10 +80,6 @@ export default function Room({
     if (!userNickname) return;
     const startConnection = async () => {
       try {
-        const connection = new signalR.HubConnectionBuilder()
-          .withUrl("https://localhost:7008/roomHub")
-          .build();
-
         console.log("SignalR Connected");
 
         connection.on("NoRoomInRoom", async () => {
@@ -179,8 +178,6 @@ export default function Room({
         await connection.start();
 
         await connection.invoke("JoinRoom", roomId, userNickname);
-
-        setConnection(connection);
       } catch (error) {
         console.error("SignalR Connection Error:", error);
       }
@@ -191,7 +188,6 @@ export default function Room({
 
   useEffect(() => {
     return () => {
-      setConnection(null);
       if (connection) {
         connection.off("UserJoined");
         connection.off("UserLeft");
@@ -220,7 +216,6 @@ export default function Room({
           .catch((error) =>
             console.error("Error stopping SignalR connection:", error),
           );
-        setConnection(null);
       }
     };
   }, []);

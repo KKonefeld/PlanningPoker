@@ -64,6 +64,7 @@ const UsList: React.FC<Props> = ({
         <div className="flex flex-col gap-4">
           {data?.map((el) => (
             <UsCard
+              roomId={roomId}
               key={el.id}
               data={el}
               deleteUserStoryHandle={deleteUserStoryHandle}
