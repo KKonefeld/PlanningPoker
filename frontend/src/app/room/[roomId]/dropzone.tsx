@@ -74,7 +74,21 @@ const DropzoneComponent: React.FC = () => {
 
     try {
       const result = UserStoryApi.exportUserStories(roomId);
-      console.log("Export result:", result);
+          // Prepare the CSV data
+      const csvContent = "data:text/csv;charset=utf-8," + encodeURIComponent(await result);
+
+      // Create a downloadable blob
+      const blob = new Blob([await result], { type: 'text/csv;charset=utf-8' });
+
+      // Simulate a click on a hidden anchor tag to trigger download
+      const downloadLink = document.createElement('a');
+      downloadLink.href = csvContent;
+      downloadLink.download = `user_stories_${roomId}.csv`;
+      downloadLink.style.display = 'none';
+      document.body.appendChild(downloadLink);
+      downloadLink.click();
+      document.body.removeChild(downloadLink);
+
       console.log("User stories exported successfully!");
       
     } catch (error) {
