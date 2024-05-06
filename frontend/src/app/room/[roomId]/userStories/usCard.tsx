@@ -4,6 +4,7 @@ import { useState } from "react";
 import UsCardDialog from "./usCardDialog";
 type Props = {
   data: UserStory;
+  roomId: number;
   deleteUserStoryHandle: (id: number) => void;
   updateUserStoryHandle: (
     id: number,
@@ -26,6 +27,7 @@ type Props = {
 
 const UsCard: React.FC<Props> = ({
   data,
+  roomId,
   deleteUserStoryHandle,
   updateUserStoryHandle,
   createUserStoryTaskHandle,
@@ -39,6 +41,7 @@ const UsCard: React.FC<Props> = ({
       {/* <Button size="sm">Show Details</Button> */}
       <UsCardDialog
         data={data}
+        roomId={roomId}
         deleteUserStoryHandle={deleteUserStoryHandle}
         updateUserStoryHandle={updateUserStoryHandle}
         createUserStoryTaskHandle={createUserStoryTaskHandle}

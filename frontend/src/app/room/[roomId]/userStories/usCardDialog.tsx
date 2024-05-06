@@ -15,9 +15,12 @@ import { UserStory, UserStoryTask } from "@/model/userstory";
 import { Label } from "@/components/ui/label";
 import { ChevronDown, ChevronUp, Plus } from "lucide-react";
 import UsTask from "./usTask";
+import { useQueryClient } from "@tanstack/react-query";
+import { userStoryKeys } from "@/queries/userstory.queries";
 
 type Props = {
   data: UserStory;
+  roomId: number;
   deleteUserStoryHandle: (id: number) => void;
   updateUserStoryHandle: (
     id: number,
@@ -40,6 +43,7 @@ type Props = {
 
 const UsCardDialog: React.FC<Props> = ({
   data,
+  roomId,
   deleteUserStoryHandle,
   updateUserStoryHandle,
   createUserStoryTaskHandle,
@@ -47,6 +51,7 @@ const UsCardDialog: React.FC<Props> = ({
   updateUserStoryTaskHandle,
   setVotedTaskHandle,
 }) => {
+  const queryClient = useQueryClient();
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [showAddTask, setShowAddTask] = useState<boolean>(false);
@@ -67,6 +72,9 @@ const UsCardDialog: React.FC<Props> = ({
         taskTitleRef.current.value,
         taskDescRef.current.value,
       );
+      setTimeout(() => {
+        queryClient.invalidateQueries(userStoryKeys.userStory(data.id));
+      }, 5000);
     }
   };
 
@@ -84,6 +92,12 @@ const UsCardDialog: React.FC<Props> = ({
         descRef.current.value,
       );
     }
+
+    queryClient.invalidateQueries(
+      queryClient.invalidateQueries(userStoryKeys.userStories(roomId)),
+    );
+
+    setIsOpen(false);
   };
 
   return (
@@ -92,7 +106,6 @@ const UsCardDialog: React.FC<Props> = ({
         <Button onClick={() => handleToggle(true)} size="sm">
           Show Details
         </Button>
-      
       </DialogTrigger>
       <DialogContent className="bg-background text-white">
         <DialogHeader>
@@ -144,7 +157,7 @@ const UsCardDialog: React.FC<Props> = ({
             </Button>
           </div>
         ) : null}
-        {data.tasks.length > 0 ? (
+        {data?.tasks && data?.tasks?.length > 0 ? (
           <div>
             {data.tasks.map((task: UserStoryTask) => (
               <UsTask
@@ -169,7 +182,10 @@ const UsCardDialog: React.FC<Props> = ({
           ) : (
             <Button
               variant="destructive"
-              onClick={() => deleteUserStoryHandle(data.id)}
+              onClick={() => {
+                deleteUserStoryHandle(data.id);
+                setIsOpen(false);
+              }}
             >
               Delete
             </Button>

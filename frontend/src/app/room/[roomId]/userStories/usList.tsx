@@ -1,5 +1,5 @@
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { useUserStoryListQuery } from "@/queries/userstory.queries";
+import { useListUserStoriesQuery } from "@/queries/userstory.queries";
 import UsCard from "./usCard";
 import DropzoneComponent from "../dropzone";
 import { Button } from "@/components/ui/button";
@@ -41,7 +41,7 @@ const UsList: React.FC<Props> = ({
   updateUserStoryTaskHandle,
   setVotedTaskHandle,
 }) => {
-  const { data, isLoading, isError, error } = useUserStoryListQuery(roomId);
+  const { data, isLoading, isError, error } = useListUserStoriesQuery(roomId);
 
   const handleclick = () => {
     createUserStoryHandle("New User Story", "New Description");
@@ -64,6 +64,7 @@ const UsList: React.FC<Props> = ({
         <div className="flex flex-col gap-4">
           {data?.map((el) => (
             <UsCard
+              roomId={roomId}
               key={el.id}
               data={el}
               deleteUserStoryHandle={deleteUserStoryHandle}
