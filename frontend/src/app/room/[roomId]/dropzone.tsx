@@ -10,6 +10,7 @@ const DropzoneComponent: React.FC = () => {
   const [isUploadSuccessful, setIsUploadSuccessful] = useState(false);
   const [wrongFileFormatProvided, setwrongFileFormatProvided] = useState(false);
   const [csvData, setCsvData] = useState<any[]>([]); // State to store CSV data
+  const [csvFile, setCsvFile] = useState<File | null>(null);
   const [modalVisible, setModalVisible] = useState(false); // State to manage modal visibility
   const tableRef = useRef<HTMLTableElement>(null);
 
@@ -28,9 +29,12 @@ const DropzoneComponent: React.FC = () => {
           const parsedData = results.data;
           console.log("Parsed CSV data:", parsedData);
           setCsvData(parsedData); // Store CSV data in state
-          showModal(); 
+          showModal();
         },
       });
+
+      setCsvFile(selectedFile);
+
     } else {
       // Not a CSV file
       setIsUploadSuccessful(false);
@@ -47,15 +51,14 @@ const DropzoneComponent: React.FC = () => {
     }
   };
 
-  const importUserStories = () => {
+  const importUserStories = async () => {
     // Extract room ID from URL (assuming URL format is consistent)
     const url = window.location.href;
     const roomIdMatch = url.match(/\/room\/(\d+)/);
     const roomId = roomIdMatch ? parseInt(roomIdMatch[1]) : null; // Parse as integer
-    console.log("Room ID:", roomId);
-    if (roomId) {
-      const result = UserStoryApi.importUserStories(roomId, csvData);
-      console.log("Import result:", result);
+    if (roomId && csvFile != null) {
+      const result = await UserStoryApi.importUserStories(roomId, csvFile);
+      console.log(result);
     } else {
       console.error("Error: Could not extract room ID from URL");
     }

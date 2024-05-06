@@ -18,11 +18,21 @@ export namespace UserStoryApi {
     return result.data;
   }
 
-  export const importUserStories = async (roomId: number, file: any) => {
+  export const importUserStories = async (roomId: number, file: File) => {
     const formData = new FormData();
-    formData.append("file", file);
-    const result = await api.post(`/user-stories/import/${roomId}`, formData);
-    
-    return result.data;
+    formData.append('file', file);
+
+    const requestOptions = {
+      method: "POST",
+      body: formData
+    };
+
+    const result = await fetch(`https://localhost:7008/api/user-stories/import/${roomId}`, requestOptions);
+
+    if (result.ok) {
+      return 'Import successful';
+    }
+
+    return 'Import failed';
   }
 }
