@@ -41,6 +41,9 @@ dependencies:
   axios:
     specifier: ^1.6.8
     version: 1.6.8
+  axios-curlirize:
+    specifier: ^2.0.0
+    version: 2.0.0
   class-variance-authority:
     specifier: ^0.7.0
     version: 0.7.0
@@ -1491,6 +1494,10 @@ packages:
     resolution: {integrity: sha512-M0JtH+hlOL5pLQwHOLNYZaXuhqmvS8oExsqB1SBYgA4Dk7u/xx+YdGHXaK5pyUfed5mYXdlYiphWq3G8cRi5JQ==}
     engines: {node: '>=4'}
     dev: true
+
+  /axios-curlirize@2.0.0:
+    resolution: {integrity: sha512-TrQBa8MfIwaYsrCoYhfCr7NDRXLuGm+Rqh/PtAuO64b8PCCOJWn37BWQvpN4/mzzig3uHb4qXzvpxJmALHaiwA==}
+    dev: false
 
   /axios@1.6.8:
     resolution: {integrity: sha512-v/ZHtJDU39mDpyBoFVkETcd/uNdxrWRrg3bKpOKzXFA6Bvqopts6ALSMU3y6ijYxbw2B+wPrIv46egTzJXCLGQ==}

@@ -1,7 +1,7 @@
 import { RoomApi } from "@/api/room-api";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-const roomKeys = {
+export const roomKeys = {
   rooms: () => ["rooms", "list"],
   room: (roomId: number) => ["room", roomId],
 };
