@@ -5,8 +5,11 @@ import Papa from "papaparse";
 import { Modal, Table, Checkbox } from "antd";
 import { UserStoryApi } from "@/api/userstory-api";
 import { Button } from "@/components/ui/button";
+import { useQueryClient } from "@tanstack/react-query";
+import { userStoryKeys } from "@/queries/userstory.queries";
 
 const DropzoneComponent: React.FC = () => {
+  const queryClient = useQueryClient();
   const [isUploadSuccessful, setIsUploadSuccessful] = useState(false);
   const [wrongFileFormatProvided, setwrongFileFormatProvided] = useState(false);
   const [csvData, setCsvData] = useState<any[]>([]); // State to store CSV data
@@ -62,6 +65,9 @@ const DropzoneComponent: React.FC = () => {
     } else {
       console.error("Error: Could not extract room ID from URL");
     }
+    setTimeout(() => {
+      queryClient.invalidateQueries(userStoryKeys.userStory(roomId));
+    }, 500);
   };
 
   const exportUserStories = async () => {

@@ -26,6 +26,7 @@
         public string Title { get; set; }
         public string Description { get; set; }
         public string EstimationResult { get; set; }
+        public bool CurrentlyEvaluated { get; set; } = false;
         public int UserStoryId { get; set; }
 
         public string ToCsvString()

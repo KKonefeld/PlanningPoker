@@ -74,7 +74,7 @@ const UsCardDialog: React.FC<Props> = ({
       );
       setTimeout(() => {
         queryClient.invalidateQueries(userStoryKeys.userStory(data.id));
-      }, 5000);
+      }, 500);
     }
   };
 

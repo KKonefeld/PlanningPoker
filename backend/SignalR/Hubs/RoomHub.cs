@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.SignalR;
+using PlanningPoker.Migrations;
 using PlanningPoker.Models.Participants;
 using PlanningPoker.Models.Rooms;
 using PlanningPoker.Models.UserStory;
@@ -48,9 +49,22 @@ namespace PlanningPoker.SignalR.Hubs
 
             var votingState = _roomService.GetVotingState(room);
             await Clients.Group(groupName).SendAsync("VotingState", votingState);
+
+            await GetCurrentVotingTask(groupName);
         }
 
-        public async Task SubmitVote(int roomId, string participantName, string? voteValue)
+        private async Task GetCurrentVotingTask(string groupName)
+        {
+            var userStoryTask = await _userStoryService.GetCurrentVotingTask();
+
+            if (userStoryTask == null)
+                return;
+
+            await Clients.Caller.SendAsync("VotingStart", userStoryTask);
+            await Clients.Group(groupName).SendAsync("TaskEstimation", null);
+        }
+
+        public async Task SubmitVote(int roomId, string participantName, string? voteValue, int userStoryTaskId)
         {
             await _participantService.SubmitVote(participantName, Context.ConnectionId, voteValue);
             var room = await _roomService.GetRoomById(roomId);
@@ -64,6 +78,8 @@ namespace PlanningPoker.SignalR.Hubs
             {
                 await Clients.Group(groupName).SendAsync("VoteWithdrawn", participantName);
                 await Clients.Group(groupName).SendAsync("EveryoneVoted", false);
+                await Clients.Group(groupName).SendAsync("TaskEstimation", null);
+
             }
             else
             {
@@ -72,9 +88,17 @@ namespace PlanningPoker.SignalR.Hubs
 
             if (await IsVotingFinished(roomId))
             {
-                await Clients.Group(groupName).SendAsync("EveryoneVoted", true);
                 var votingResults = _roomService.GetVotingResults(room);
+
+                var estimation = await _userStoryService.EstimateTaskValue(userStoryTaskId, votingResults, room.VotingSystem);
+
+                if (string.IsNullOrEmpty(estimation))
+                    throw new Exception("Task estimation failed");
+
                 await Clients.Group(groupName).SendAsync("VotingResults", votingResults);
+                await Clients.Group(groupName).SendAsync("EveryoneVoted", true);
+                await Clients.Group(groupName).SendAsync("TaskEstimation", estimation);
+
                 return;
             }
 
@@ -191,6 +215,25 @@ namespace PlanningPoker.SignalR.Hubs
 
             else
                 await Clients.Caller.SendAsync("DeletingUserStoryTaskFailed");
+        }
+
+        public async Task SetVotedTask(int roomId, int userStoryTaskId)
+        {
+            var room = await _roomService.GetRoomById(roomId);
+            var userStoryTask = await _userStoryService.GetUserStoryTaskById(userStoryTaskId);
+
+            if (room == null)
+                throw new Exception("No room with given ID");
+
+            if (userStoryTask == null)
+                throw new Exception("No task with given ID");
+
+            // Note: For users that joined during vote
+            await _userStoryService.SetCurrentEvaluatedTask(userStoryTaskId);
+
+            var groupName = GetGroupName(room);
+
+            await Clients.Group(groupName).SendAsync("VotingStart", userStoryTask);
         }
 
         public override async Task OnDisconnectedAsync(Exception? exception)

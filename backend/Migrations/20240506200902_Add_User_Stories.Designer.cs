@@ -12,8 +12,8 @@ using PlanningPoker.Persistence;
 namespace PlanningPoker.Migrations
 {
     [DbContext(typeof(PlanningPokerDbContext))]
-    [Migration("20240505010046_UserStoryTask")]
-    partial class UserStoryTask
+    [Migration("20240506200902_Add_User_Stories")]
+    partial class Add_User_Stories
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

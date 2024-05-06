@@ -49,6 +49,7 @@ export default function Room({
   const [userStories, setUserStories] = useState<UserStory[]>([]);
 
   const [votedTask, setVotedTask] = useState<UserStoryTask | null>(null);
+  const [votedTaskEstimation, setVotedTaskEstimation] = useState<string | null>(null);
 
   const router = useRouter();
 
@@ -175,6 +176,17 @@ export default function Room({
           console.log("Deleting user story task failed");
         });
 
+        connection.on("VotingStart", async (task) => {
+          setVotedTask(task);
+          setVotedTaskEstimation(null);
+          await submitVoteHandle(null);
+        });
+
+        connection.on("TaskEstimation", async (taskEstimation) => {
+          setVotedTaskEstimation(taskEstimation);
+          await submitVoteHandle(null);
+        });
+
         await connection.start();
 
         await connection.invoke("JoinRoom", roomId, userNickname);
@@ -225,7 +237,7 @@ export default function Room({
   const submitVoteHandle = async (value: string | null) => {
     if (!connection) return;
     console.log(value, connection.state);
-    await connection.invoke("SubmitVote", roomId, userNickname, value);
+    await connection.invoke("SubmitVote", roomId, userNickname, value, votedTask?.id);
   };
 
   const addUserStoryHandle = async (title: string, description: string) => {
@@ -239,6 +251,8 @@ export default function Room({
         //   description: description,
         //   userStoryTasks: [],
         // });
+        
+        // @ts-ignore
         queryClient.invalidateQueries(userStoryKeys.userStories(roomId));
         console.log("User story added");
       });
@@ -252,6 +266,7 @@ export default function Room({
     if (!connection) return;
     await connection
       .invoke("UpdateUserStory", roomId, userStoryId, title, description)
+      // @ts-ignore
       .then(queryClient.invalidateQueries(userStoryKeys.userStories(roomId)));
   };
 
@@ -259,6 +274,7 @@ export default function Room({
     if (!connection) return;
     await connection
       .invoke("DeleteUserStory", roomId, userStoryId)
+      // @ts-ignore
       .then(queryClient.invalidateQueries(userStoryKeys.userStories(roomId)));
   };
 
@@ -297,8 +313,10 @@ export default function Room({
     await connection.invoke("DeleteUserStoryTask", roomId, userStoryTaskId);
   };
 
-  const setVotedTaskHandle = (task: UserStoryTask) => {
-    setVotedTask(task);
+  const setVotedTaskHandle = async (task: UserStoryTask) => {
+    if (!connection) return;
+    console.log(task.id);
+    await connection.invoke("SetVotedTask", roomId, task.id);
   };
 
   if (!userNickname) {
@@ -360,14 +378,25 @@ export default function Room({
 
       <div className="my-8 flex w-full items-center justify-center rounded-2xl border-2 border-white py-20">
         {votedTask?.title}
-        {gameState}
+        
+        {votedTaskEstimation && (
+          <div>
+            <h2>Task estimation</h2>
+            <h3>{votedTaskEstimation}</h3>
+          </div>
+        )}
       </div>
 
-      <h2>Your deck</h2>
-      <Deck
-        votingSystem={data.votingSystem}
-        submitVoteHandle={submitVoteHandle}
-      ></Deck>
+      {votedTask !== null && (
+        <div>
+          <h2>Your deck</h2>
+          <Deck
+            votingSystem={data.votingSystem}
+            submitVoteHandle={submitVoteHandle}
+          />
+        </div>
+      )}
+
 
       {/* <div style={{ display: 'flex', justifyContent: 'center' }}>
         <Button disabled={gameState != 'finished'} className="mt-5">Lock Voting</Button>

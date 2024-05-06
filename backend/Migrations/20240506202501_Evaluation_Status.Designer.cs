@@ -12,8 +12,8 @@ using PlanningPoker.Persistence;
 namespace PlanningPoker.Migrations
 {
     [DbContext(typeof(PlanningPokerDbContext))]
-    [Migration("20240504220559_UserStory")]
-    partial class UserStory
+    [Migration("20240506202501_Evaluation_Status")]
+    partial class Evaluation_Status
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -119,12 +119,16 @@ namespace PlanningPoker.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<bool>("CurrentlyEvaluated")
+                        .HasColumnType("boolean");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<double>("EstimationResult")
-                        .HasColumnType("double precision");
+                    b.Property<string>("EstimationResult")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<string>("Title")
                         .IsRequired()

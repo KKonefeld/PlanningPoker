@@ -1,4 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using PlanningPoker.Models.Participants;
+using PlanningPoker.Models.Rooms;
 using PlanningPoker.Models.UserStory;
 
 namespace PlanningPoker.Services.UserStoryService
@@ -20,5 +22,11 @@ namespace PlanningPoker.Services.UserStoryService
 
         Task<MemoryStream?> ExportUserStories(int roomId);
         Task<bool> ImportUserStories(int roomId, IFormFile file);
+
+        Task<string> EstimateTaskValue(int userStoryTaskId, IList<VotingResults> votingResults, VotingSystem votingSystem);
+        Task<UserStoryTask?> GetUserStoryTaskById(int userStoryTaskId);
+
+        Task<UserStoryTask?> GetCurrentVotingTask();
+        Task SetCurrentEvaluatedTask(int userStoryTaskId);
     }
 }

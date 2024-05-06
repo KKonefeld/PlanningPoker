@@ -1,6 +1,8 @@
-﻿using System.Text;
-using Microsoft.AspNetCore.Mvc;
+﻿using System.Globalization;
+using System.Text;
 using Microsoft.EntityFrameworkCore;
+using PlanningPoker.Models.Participants;
+using PlanningPoker.Models.Rooms;
 using PlanningPoker.Models.UserStory;
 using PlanningPoker.Persistence;
 
@@ -17,6 +19,9 @@ namespace PlanningPoker.Services.UserStoryService
 
         public async Task<bool> AddUserStory(UserStory userStory)
         {
+            if (await _dbContext.UserStories.AnyAsync(us => us.Title == userStory.Title))
+                return false;
+
             try
             {
                 await _dbContext.UserStories.AddAsync(userStory);
@@ -307,6 +312,82 @@ namespace PlanningPoker.Services.UserStoryService
                 .Include(us => us.Tasks)
                 .Where(us => us.RoomId == roomId)
                 .ToListAsync();
+        }
+
+        public async Task<UserStoryTask?> GetUserStoryTaskById(int userStoryTaskId)
+        {
+            return await _dbContext.UserStoryTasks.FindAsync(userStoryTaskId);
+        }
+
+        public async Task<string> EstimateTaskValue(int userStoryTaskId, IList<VotingResults> votingResults, VotingSystem votingSystem)
+        {
+            var estimation = EvaluateResults(votingResults, votingSystem);
+
+            var task = await GetUserStoryTaskById(userStoryTaskId);
+
+            if (task == null)
+                return string.Empty;
+
+            task.EstimationResult = estimation;
+
+            _dbContext.UserStoryTasks.Update(task);
+            await _dbContext.SaveChangesAsync();
+
+            return task.EstimationResult;
+        }
+
+        private string EvaluateResults(IList<VotingResults> results, VotingSystem votingSystem)
+        {
+            var count = results.Count;
+
+            if (votingSystem == VotingSystem.Fibonacci)
+            {
+                var sum = results.Select(r => int.Parse(r.Value)).Sum();
+                var avg = (double)sum/count;
+
+                var estimation = Math.Round(avg, MidpointRounding.AwayFromZero);
+
+                return estimation.ToString(CultureInfo.InvariantCulture);
+            }
+
+            if (votingSystem == VotingSystem.Tshirts)
+            {
+                var mapper = new TshirtSizeMapper();
+
+                var sum = results.Select(r => mapper.MapFromTshirtSize(r.Value)).Sum();
+
+                var avg = (double)sum / count;
+                var estimation = Math.Round(avg, MidpointRounding.AwayFromZero);
+
+                return mapper.MapToTshirtSize((int)estimation);
+            }
+
+            return string.Empty;
+        }
+
+
+        public async Task<UserStoryTask?> GetCurrentVotingTask()
+        {
+            return await _dbContext.UserStoryTasks.FirstOrDefaultAsync(t => t.CurrentlyEvaluated);
+        }
+
+        public async Task SetCurrentEvaluatedTask(int userStoryTaskId)
+        {
+            var tasksToReset = await _dbContext.UserStoryTasks.Where(t => t.CurrentlyEvaluated).ToListAsync();
+
+            foreach (var task in tasksToReset)
+            {
+                task.CurrentlyEvaluated = false;
+            }
+
+            var newTask = await _dbContext.UserStoryTasks.FindAsync(userStoryTaskId);
+
+            if (newTask == null)
+                throw new Exception("No task with given ID");
+
+            newTask.CurrentlyEvaluated = true;
+
+            await _dbContext.SaveChangesAsync();
         }
     }
 }
