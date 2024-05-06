@@ -92,7 +92,6 @@ const UsCardDialog: React.FC<Props> = ({
         <Button onClick={() => handleToggle(true)} size="sm">
           Show Details
         </Button>
-      
       </DialogTrigger>
       <DialogContent className="bg-background text-white">
         <DialogHeader>
@@ -144,7 +143,7 @@ const UsCardDialog: React.FC<Props> = ({
             </Button>
           </div>
         ) : null}
-        {data.tasks.length > 0 ? (
+        {data?.tasks && data?.tasks?.length > 0 ? (
           <div>
             {data.tasks.map((task: UserStoryTask) => (
               <UsTask
