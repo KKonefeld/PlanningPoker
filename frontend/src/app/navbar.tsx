@@ -4,7 +4,7 @@ import Logo from "./logo";
 const Navbar: React.FC = () => {
   return (
     <div className="h-20 w-full bg-background2">
-      <div className="container mx-auto flex h-full items-center gap-8">
+      <div className="container mx-auto flex h-full items-center gap-8 px-6">
         <Link className="h-full" href="/">
           <Logo />
         </Link>

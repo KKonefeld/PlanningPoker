@@ -7,7 +7,7 @@ type Props = {
 
 const Participant: React.FC<Props> = ({ data }) => {
   return (
-    <div className="mt-10 flex flex-col items-center">
+    <div className="flex flex-col items-center">
       <div className="flex aspect-square w-20 items-center justify-center rounded-full bg-accent2 text-4xl font-bold uppercase">
         {data.name.slice(0, 1)}
       </div>

@@ -15,12 +15,14 @@ const buttonVariants = cva(
           "bg-accent text-white hover:bg-accent2 dark:bg-slate-50 dark:text-slate-900 dark:hover:bg-slate-50/90",
         combobox:
           "bg-background2 hover:bg-background3 border border-slate-200 w-full justify-between !px-3",
+        destructive: "text-white bg-red hover:bg-red2",
       },
       size: {
         default: "h-10 px-4 py-2",
         sm: "h-9 rounded-md px-3",
         lg: "h-11 rounded-md px-8",
         icon: "h-10 w-10",
+        action: "h-6 w-6 p-1 leading-none",
       },
     },
     defaultVariants: {

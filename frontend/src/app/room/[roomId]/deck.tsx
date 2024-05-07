@@ -27,18 +27,7 @@ const Deck: React.FC<Props> = ({ votingSystem, submitVoteHandle }) => {
     if (votingSystem === VOTING_SYSTEM.FIBONACCI) {
       setDeck(["1", "2", "3", "5", "8", "13", "21", "34", "55", "89"]);
     } else if (votingSystem === VOTING_SYSTEM.TSHIRTS) {
-      setDeck([
-        "3XS",
-        "2XS",
-        "XS",
-        "S",
-        "M",
-        "L",
-        "XL",
-        "2XL",
-        "3XL",
-        "4XL",
-      ]);
+      setDeck(["3XS", "2XS", "XS", "S", "M", "L", "XL", "2XL", "3XL", "4XL"]);
     }
   }, [votingSystem]);
 
@@ -47,7 +36,7 @@ const Deck: React.FC<Props> = ({ votingSystem, submitVoteHandle }) => {
   }, [currentChoice]);
 
   return (
-    <div className="flex gap-4">
+    <div className="my-4 flex gap-4 ">
       {deck.map((card, index) => (
         <DeckCard
           key={index}

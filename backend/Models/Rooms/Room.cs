@@ -8,6 +8,7 @@ namespace PlanningPoker.Models.Rooms
         public Room()
         {
             Participants = new List<Participant>();
+            UserStories = new List<UserStory.UserStory>();
         }
 
         public int Id { get; set; }
@@ -18,6 +19,8 @@ namespace PlanningPoker.Models.Rooms
 
         [JsonConverter(typeof(JsonStringEnumConverter))]
         public VotingSystem VotingSystem { get; set; }
+
+        public IList<UserStory.UserStory> UserStories { get; set; }
 
     }
 }

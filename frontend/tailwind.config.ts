@@ -17,6 +17,8 @@ const config = {
         background3: "#131421",
         accent: "#129490",
         accent2: "#0f706d",
+        red: "#940303",
+        red2: "#800101",
       },
       keyframes: {
         "accordion-down": {

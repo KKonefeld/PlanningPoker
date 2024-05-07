@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using PlanningPoker.Models.Participants;
 using PlanningPoker.Models.Rooms;
+using PlanningPoker.Models.UserStory;
 
 namespace PlanningPoker.Persistence
 {
@@ -9,6 +10,8 @@ namespace PlanningPoker.Persistence
     {
         public DbSet<Room> Rooms { get; set; }
         public DbSet<Participant> Participants { get; set; }
+        public DbSet<UserStory> UserStories { get; set; }
+        public DbSet<UserStoryTask> UserStoryTasks { get; set; }
 
         public PlanningPokerDbContext(DbContextOptions<PlanningPokerDbContext> options):
             base(options)
@@ -28,9 +31,19 @@ namespace PlanningPoker.Persistence
                 .WithOne()
                 .HasForeignKey(p => p.RoomId);
 
+            modelBuilder.Entity<Room>()
+                .HasMany(r => r.UserStories)
+                .WithOne()
+                .HasForeignKey(us => us.RoomId);
+
             modelBuilder.Entity<Participant>()
                 .Property(p => p.Role)
                 .HasConversion<string>();
+
+            modelBuilder.Entity<UserStory>()
+                .HasMany(us => us.Tasks)
+                .WithOne()
+                .HasForeignKey(t => t.UserStoryId);
 
             base.OnModelCreating(modelBuilder);
         }
