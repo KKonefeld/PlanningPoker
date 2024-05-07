@@ -1,6 +1,4 @@
 ﻿using Microsoft.AspNetCore.SignalR;
-using PlanningPoker.Migrations;
-using PlanningPoker.Models.Participants;
 using PlanningPoker.Models.Rooms;
 using PlanningPoker.Models.UserStory;
 using PlanningPoker.Services.ParticipantService;
@@ -50,7 +48,7 @@ namespace PlanningPoker.SignalR.Hubs
             var votingState = _roomService.GetVotingState(room);
             await Clients.Group(groupName).SendAsync("VotingState", votingState);
 
-            await GetCurrentVotingTask(groupName);
+            //await GetCurrentVotingTask(groupName);
         }
 
         private async Task GetCurrentVotingTask(string groupName)
@@ -229,11 +227,19 @@ namespace PlanningPoker.SignalR.Hubs
                 throw new Exception("No task with given ID");
 
             // Note: For users that joined during vote
-            await _userStoryService.SetCurrentEvaluatedTask(userStoryTaskId);
+            //await _userStoryService.SetCurrentEvaluatedTask(userStoryTaskId);
 
             var groupName = GetGroupName(room);
 
             await Clients.Group(groupName).SendAsync("VotingStart", userStoryTask);
+
+
+            // TODO: Do better
+            foreach (var participant in room.Participants)
+            {
+                await _participantService.SubmitVote(participant.Name, participant.ConnectionId, null);
+                await Clients.Group(groupName).SendAsync("VoteWithdrawn", participant.Name);
+            }
         }
 
         public override async Task OnDisconnectedAsync(Exception? exception)

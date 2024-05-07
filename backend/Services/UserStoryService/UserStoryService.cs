@@ -19,7 +19,7 @@ namespace PlanningPoker.Services.UserStoryService
 
         public async Task<bool> AddUserStory(UserStory userStory)
         {
-            if (await _dbContext.UserStories.AnyAsync(us => us.Title == userStory.Title))
+            if (await _dbContext.UserStories.Where(us => us.RoomId == userStory.RoomId).AnyAsync(us => us.Title == userStory.Title))
                 return false;
 
             try

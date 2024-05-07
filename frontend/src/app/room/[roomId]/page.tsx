@@ -79,6 +79,7 @@ export default function Room({
   // todo: wsadzić 'https://localhost:7008/' w consta gdzieś
   useEffect(() => {
     if (!userNickname) return;
+    setVotedTask(null);
     const startConnection = async () => {
       try {
         console.log("SignalR Connected");
@@ -179,7 +180,6 @@ export default function Room({
         connection.on("VotingStart", async (task) => {
           setVotedTask(task);
           setVotedTaskEstimation(null);
-          await submitVoteHandle(null);
         });
 
         connection.on("TaskEstimation", async (taskEstimation) => {
@@ -376,14 +376,27 @@ export default function Room({
       <h2>Participants</h2>
       <Participants participants={participants} />
 
-      <div className="my-8 flex w-full items-center justify-center rounded-2xl border-2 border-white py-20">
-        {votedTask?.title}
-        
-        {votedTaskEstimation && (
-          <div>
-            <h2>Task estimation</h2>
-            <h3>{votedTaskEstimation}</h3>
-          </div>
+      <div className="my-8 flex w-full justify-center rounded-2xl border-2 border-white py-20">
+        {votedTask && (
+          <div className="px-3">
+            <h3>
+              <span className="mb-2">
+                <strong>Task at hand: </strong>
+              </span>
+            </h3>
+            <div className="mb-2">
+              <strong>Title:</strong> {votedTask?.title}
+            </div>
+            
+            <div className="mb-2">
+              <strong>Description:</strong> {votedTask?.description}
+            </div>
+
+            
+              <span>
+                <h2>Task estimation: {votedTaskEstimation}</h2>
+              </span>
+            </div>
         )}
       </div>
 
