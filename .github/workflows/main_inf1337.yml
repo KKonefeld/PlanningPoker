@@ -64,11 +64,8 @@ jobs:
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_012C1F6B402F40D7A044C0D765F9E315 }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_E1E00A36823942A299B545AF128BF56D }}
 
-      - name: 'Deploy to Azure Web App'
-        uses: azure/webapps-deploy@v2
-        id: deploy-to-webapp
-        with:
-          app-name: 'inf1337'
-          slot-name: 'Production'
-          package: ./frontend
+      - name: Deploy to Azure Web App
+        run: |
+          az webapp deployment source config-zip -g planingpoker -n inf1337 --src ./frontend
+
           
