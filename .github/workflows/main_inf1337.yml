@@ -29,8 +29,7 @@ jobs:
 
       - name: Create zip archive
         run: |
-          cd frontend
-          zip -r build.zip build
+          Compress-Archive -Path ./frontend -DestinationPath ./frontend/build.zip
       
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v3
@@ -55,7 +54,7 @@ jobs:
           
       - name: Extract zip archive
         run: |
-          unzip -q ./frontend/build.zip -d ./frontend
+          Expand-Archive -Path ./frontend/build.zip -DestinationPath ./frontend
       
       - name: Login to Azure
         uses: azure/login@v1
