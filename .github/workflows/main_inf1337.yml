@@ -54,7 +54,7 @@ jobs:
           
       - name: Extract zip archive
         run: |
-          7z x ./frontend/build.zip -o./frontend -aoa
+          7z x ./build.zip -o./frontend -aoa
         working-directory: ${{ github.workspace }}
       
       - name: Login to Azure
