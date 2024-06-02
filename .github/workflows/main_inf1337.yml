@@ -61,5 +61,5 @@ jobs:
         with:
           app-name: 'inf1337'
           slot-name: 'Production'
-          package: ./frontend/
+          package: ./frontend
           
