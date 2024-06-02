@@ -23,15 +23,15 @@ jobs:
 
       - name: npm install, build, and test
         run: |
-          npm install
-          npm run build --if-present
-          npm run test --if-present
+          npm install ./frontend
+          npm run build --if-present ./frontend
+          npm run test --if-present ./frontend
       
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v3
         with:
           name: node-app
-          path: .
+          path: ./frontend
 
   deploy:
     runs-on: ubuntu-latest
@@ -61,5 +61,5 @@ jobs:
         with:
           app-name: 'inf1337'
           slot-name: 'Production'
-          package: .
+          package: ./frontend
           
