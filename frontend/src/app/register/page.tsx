@@ -5,35 +5,18 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 
-import { CaretSortIcon, CheckIcon } from "@radix-ui/react-icons";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from "@/components/ui/command";
 import { Input } from "@/components/ui/input";
-import { cn } from "@/lib/utils";
-import { useState } from "react";
-import { VOTING_SYSTEM } from "@/model/user";
-import { useCreateRoomMutation } from "@/queries/room.queries";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { useSignUpMutation } from "@/queries/auth.queries";
 
 const formSchema = z
   .object({
@@ -49,9 +32,6 @@ const formSchema = z
     confirmPassword: z
       .string({ required_error: "This field is required" })
       .min(6, "Password must be at least 6 characters long"),
-    terms: z.boolean().refine((value) => value === true, {
-      message: "This field is required",
-    }),
   })
   .superRefine((val, ctx) => {
     if (val.password !== val.confirmPassword) {
@@ -63,13 +43,15 @@ const formSchema = z
     }
   });
 
-export default function CreateForm() {
-  const [open, setOpen] = useState(false);
+export default function Register() {
   const router = useRouter();
 
-  const createRoomMutation = useCreateRoomMutation({
-    onSuccess: (roomId) => {
-      router.push(`/room/${roomId}`);
+  const signUpMutation = useSignUpMutation({
+    onSuccess: (res) => {
+      router.push("");
+    },
+    onError: (e) => {
+      alert(e.message);
     },
   });
 
@@ -80,121 +62,95 @@ export default function CreateForm() {
       email: undefined,
       password: undefined,
       confirmPassword: undefined,
-      terms: false,
     },
   });
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
+    signUpMutation.mutate({
+      username: values.username,
+      email: values.email,
+      password: values.password,
+    });
   }
 
   return (
-    <Form {...form}>
-      <form
-        onSubmit={form.handleSubmit(onSubmit)}
-        className="w-full max-w-[40rem] space-y-8 px-8"
-      >
-        <FormField
-          control={form.control}
-          name="username"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Room's name</FormLabel>
-              <FormControl>
-                <Input placeholder="Example name" {...field} />
-              </FormControl>
-              <FormDescription>This is room's public name.</FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="roomCapacity"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Room Capacity</FormLabel>
-              <FormControl>
-                <Input placeholder="Example: 10" type="number" {...field} />
-              </FormControl>
-              <FormDescription>
-                This is maximum number of participants.
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="votingSystem"
-          render={({ field }) => (
-            <FormItem className="flex flex-col">
-              <FormLabel>Voting System</FormLabel>
-              <Popover open={open} onOpenChange={setOpen}>
-                <PopoverTrigger asChild>
+    <div className="w-full max-w-xl overflow-hidden rounded-lg bg-background2 shadow-md">
+      <div className="px-8 pb-8 pt-24">
+        <h1 className="mb-16 text-center">Register</h1>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <FormField
+              control={form.control}
+              name="username"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Username</FormLabel>
                   <FormControl>
-                    <Button
-                      role="combobox"
-                      variant="combobox"
-                      className={cn(!field.value && "text-muted-foreground")}
-                    >
-                      {field.value
-                        ? votingSystems.find(
-                            (system) => system.value === field.value,
-                          )?.label
-                        : "Select language"}
-                      <CaretSortIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                    </Button>
+                    <Input placeholder="Username" {...field} />
                   </FormControl>
-                </PopoverTrigger>
-                <PopoverContent className="w-[100vw] max-w-[36rem] p-0">
-                  <Command>
-                    {/* <CommandInput
-                      placeholder="Search framework..."
-                      className="h-9"
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>E-mail</FormLabel>
+                  <FormControl>
+                    <Input placeholder="E-mail" type="email" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="password"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Password</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Password" type="password" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="confirmPassword"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Confirm Password</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="Confirm password"
+                      type="password"
+                      {...field}
                     />
-                    <CommandEmpty>No framework found.</CommandEmpty> */}
-                    <CommandList>
-                      <CommandGroup>
-                        {votingSystems.map((system) => (
-                          <CommandItem
-                            value={system.label}
-                            key={system.value}
-                            onSelect={() => {
-                              form.setValue("votingSystem", system.value);
-
-                              setOpen(false);
-                            }}
-                          >
-                            {system.label}
-
-                            <CheckIcon
-                              className={cn(
-                                "ml-auto h-4 w-4",
-                                system.value === field.value
-                                  ? "opacity-100"
-                                  : "opacity-0",
-                              )}
-                            />
-                          </CommandItem>
-                        ))}
-                      </CommandGroup>
-                    </CommandList>
-                  </Command>
-                </PopoverContent>
-              </Popover>
-
-              <FormDescription>
-                This is the voting system for specifying estimations.
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <Button type="submit">Create room</Button>
-      </form>
-    </Form>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <Button type="submit" className="w-full">
+              Register
+            </Button>
+          </form>
+        </Form>
+        <div className="mt-16">
+          <p className="mb-2 text-center font-medium">
+            Already have an account?
+          </p>
+          <Link href="/login">
+            <Button type="button" className="w-full">
+              Login
+            </Button>
+          </Link>
+        </div>
+      </div>
+    </div>
   );
 }

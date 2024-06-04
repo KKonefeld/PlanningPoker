@@ -14,6 +14,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { useRouter } from "next/navigation";
 import { useSignInMutation } from "@/queries/auth.queries";
+import Link from "next/link";
 
 const formSchema = z.object({
   email: z
@@ -24,7 +25,7 @@ const formSchema = z.object({
     .min(6, "Password must be at least 6 characters long"),
 });
 
-export default function CreateForm() {
+export default function Login() {
   const router = useRouter();
 
   const signInMutation = useSignInMutation({
@@ -49,57 +50,51 @@ export default function CreateForm() {
   }
 
   return (
-    <>
-      <div className="w-full max-w-xl overflow-hidden rounded-lg bg-background2 shadow-md">
-        <div className="px-8 pb-8 pt-24">
-          <h1 className="mb-16 text-center">Login</h1>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-              <FormField
-                control={form.control}
-                name="email"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>E-mail</FormLabel>
-                    <FormControl>
-                      <Input placeholder="E-mail" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="password"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Password</FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="Password"
-                        type="password"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <Button type="submit" className="w-full">
-                Login
-              </Button>
-            </form>
-          </Form>
-          <div className="mt-16">
-            <p className="mb-2 text-center font-medium">
-              Don't have an account?
-            </p>
+    <div className="w-full max-w-xl overflow-hidden rounded-lg bg-background2 shadow-md">
+      <div className="px-8 pb-8 pt-24">
+        <h1 className="mb-16 text-center">Login</h1>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>E-mail</FormLabel>
+                  <FormControl>
+                    <Input placeholder="E-mail" type="email" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="password"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Password</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Password" type="password" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             <Button type="submit" className="w-full">
+              Login
+            </Button>
+          </form>
+        </Form>
+        <div className="mt-16">
+          <p className="mb-2 text-center font-medium">Don't have an account?</p>
+          <Link href="/register">
+            <Button type="button" className="w-full">
               Register
             </Button>
-          </div>
+          </Link>
         </div>
       </div>
-    </>
+    </div>
   );
 }
