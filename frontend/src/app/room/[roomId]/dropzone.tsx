@@ -24,8 +24,8 @@ const DropzoneComponent: React.FC = () => {
     if (selectedFile.type === "text/csv") {
       console.log("Uploaded file:", selectedFile);
       setIsUploadSuccessful(true);
-      setwrongFileFormatProvided(false); 
-      
+      setwrongFileFormatProvided(false);
+
       // Parse the CSV file using PapaParse
       Papa.parse(selectedFile, {
         complete: (results) => {
@@ -37,14 +37,13 @@ const DropzoneComponent: React.FC = () => {
       });
 
       setCsvFile(selectedFile);
-
     } else {
       // Not a CSV file
       setIsUploadSuccessful(false);
       setwrongFileFormatProvided(true);
     }
   };
-  
+
   const showModal = () => {
     setModalVisible(true);
     // Calculate table width and set modal width (when modal opens)
@@ -66,7 +65,9 @@ const DropzoneComponent: React.FC = () => {
       console.error("Error: Could not extract room ID from URL");
     }
     setTimeout(() => {
-      queryClient.invalidateQueries(userStoryKeys.userStory(roomId));
+      queryClient.invalidateQueries({
+        queryKey: userStoryKeys.userStory(roomId!),
+      });
     }, 500);
   };
 
@@ -83,23 +84,23 @@ const DropzoneComponent: React.FC = () => {
 
     try {
       const result = UserStoryApi.exportUserStories(roomId);
-          // Prepare the CSV data
-      const csvContent = "data:text/csv;charset=utf-8," + encodeURIComponent(await result);
+      // Prepare the CSV data
+      const csvContent =
+        "data:text/csv;charset=utf-8," + encodeURIComponent(await result);
 
       // Create a downloadable blob
-      const blob = new Blob([await result], { type: 'text/csv;charset=utf-8' });
+      const blob = new Blob([await result], { type: "text/csv;charset=utf-8" });
 
       // Simulate a click on a hidden anchor tag to trigger download
-      const downloadLink = document.createElement('a');
+      const downloadLink = document.createElement("a");
       downloadLink.href = csvContent;
       downloadLink.download = `user_stories_${roomId}.csv`;
-      downloadLink.style.display = 'none';
+      downloadLink.style.display = "none";
       document.body.appendChild(downloadLink);
       downloadLink.click();
       document.body.removeChild(downloadLink);
 
       console.log("User stories exported successfully!");
-      
     } catch (error) {
       console.error("Error exporting user stories:", error);
       // Handle errors appropriately (e.g., display error message to user)
@@ -113,24 +114,30 @@ const DropzoneComponent: React.FC = () => {
   };
 
   // Define table columns based on CSV data structure
-  const tableColumns = csvData[0] ? csvData[0].slice(0).map((header: any, index: string | number) => {
-    // Check if data is objects with matching properties
-    const dataIndex = csvData[1] && csvData[1][index] !== undefined ? header : index;
+  const tableColumns = csvData[0]
+    ? csvData[0].slice(0).map((header: any, index: string | number) => {
+        // Check if data is objects with matching properties
+        const dataIndex =
+          csvData[1] && csvData[1][index] !== undefined ? header : index;
 
-    return {
-      title: header,
-      dataIndex,
-      key: index, // Ensure unique keys
-    };
-  }) : [];
+        return {
+          title: header,
+          dataIndex,
+          key: index, // Ensure unique keys
+        };
+      })
+    : [];
 
   const mappedData = csvData.slice(1).map((rowData) => {
-    return rowData.reduce((obj: { [x: string]: any; }, value: any, index: string | number) => {
-      obj[csvData[0][index]] = value;
-      return obj;
-    }, {});
+    return rowData.reduce(
+      (obj: { [x: string]: any }, value: any, index: string | number) => {
+        obj[csvData[0][index]] = value;
+        return obj;
+      },
+      {},
+    );
   });
-  
+
   return (
     <div>
       <Dropzone onDrop={handleFileDrop}>
@@ -160,7 +167,7 @@ const DropzoneComponent: React.FC = () => {
                 </div>
               )}
               {wrongFileFormatProvided && (
-                <p className="upload-error mt-4 text-center text-red-500">
+                <p className="upload-error text-red-500 mt-4 text-center">
                   Please upload a CSV file.
                 </p>
               )}
@@ -174,9 +181,7 @@ const DropzoneComponent: React.FC = () => {
       <Button onClick={importUserStories} disabled={!isUploadSuccessful}>
         Import
       </Button>
-      <Button onClick={exportUserStories}>
-        Export
-      </Button>
+      <Button onClick={exportUserStories}>Export</Button>
       <Modal
         title="CSV Data"
         open={modalVisible}
@@ -188,11 +193,15 @@ const DropzoneComponent: React.FC = () => {
           <Button key="confirm" onClick={closeModal}>
             Confirm
           </Button>,
-
         ]}
         width={modalWidth || "auto"} // Use modal state or 'auto'
       >
-        <Table dataSource={mappedData} pagination={false} columns={tableColumns} ref={tableRef} />
+        <Table
+          dataSource={mappedData}
+          pagination={false}
+          columns={tableColumns}
+          ref={tableRef}
+        />
       </Modal>
     </div>
   );
