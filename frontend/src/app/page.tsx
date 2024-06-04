@@ -5,21 +5,27 @@ import { Button } from "@/components/ui/button";
 import { useUserStore } from "@/stores/user-store";
 import { useEffect } from "react";
 import { UserApi } from "@/api/user-api";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
+  const router = useRouter();
   const setUser = useUserStore((state) => state.setUser);
+  const userId = localStorage.getItem("userId");
 
   const getCurrentUser = async () => {
-    const userId = localStorage.getItem("userId");
     if (userId) {
       const res = await UserApi.getCurrentUser();
       setUser(res);
+    } else {
+      router.push("/login");
     }
   };
 
   useEffect(() => {
     getCurrentUser();
   }, []);
+
+  if (!userId) return null;
 
   return (
     <>
