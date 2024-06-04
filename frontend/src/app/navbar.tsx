@@ -4,10 +4,11 @@ import Link from "next/link";
 import Logo from "./logo";
 import { Button } from "@/components/ui/button";
 import { useLogout } from "@/utils/useLogout";
+import { useUserStore } from "@/stores/user-store";
 
 const Navbar: React.FC = () => {
   const logout = useLogout();
-  const userId = localStorage.getItem("userId");
+  const user = useUserStore((state) => state.user);
 
   return (
     <div className="h-20 w-full bg-background2">
@@ -20,7 +21,7 @@ const Navbar: React.FC = () => {
             Planning Poker Tool
           </span>
         </div>
-        {userId && (
+        {user && (
           <Button type="button" onClick={logout}>
             Logout
           </Button>

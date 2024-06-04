@@ -48,7 +48,7 @@ export default function Register() {
 
   const signUpMutation = useSignUpMutation({
     onSuccess: (res) => {
-      router.push("");
+      router.push("/");
     },
     onError: (e) => {
       alert(e.message);

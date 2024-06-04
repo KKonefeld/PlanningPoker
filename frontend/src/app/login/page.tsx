@@ -30,7 +30,7 @@ export default function Login() {
 
   const signInMutation = useSignInMutation({
     onSuccess: (res) => {
-      router.push("");
+      router.push("/");
     },
     onError: (e) => {
       alert(e.message);

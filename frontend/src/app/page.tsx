@@ -1,7 +1,26 @@
+"use client";
+
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { useUserStore } from "@/stores/user-store";
+import { useEffect } from "react";
+import { UserApi } from "@/api/user-api";
 
 export default function Home() {
+  const setUser = useUserStore((state) => state.setUser);
+
+  const getCurrentUser = async () => {
+    const userId = localStorage.getItem("userId");
+    if (userId) {
+      const res = await UserApi.getCurrentUser();
+      setUser(res);
+    }
+  };
+
+  useEffect(() => {
+    getCurrentUser();
+  }, []);
+
   return (
     <>
       <h1>Scrum Poker for agile Teams</h1>

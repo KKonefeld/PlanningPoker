@@ -1,3 +1,4 @@
+import { loginRes, registerRes } from "@/api-mock-data/auth-data";
 import { api } from "./client";
 
 export namespace AuthApi {
@@ -13,7 +14,10 @@ export namespace AuthApi {
   }
 
   export const signIn = async (data: SignInReq) => {
-    const res = await api.post<SignInRes>("/auth/sign-in", data);
+    // const res = await api.post<SignInRes>("/auth/sign-in", data);
+    const res = {
+      data: loginRes,
+    };
     if (res.data.userId) {
       localStorage.setItem("userId", res.data.userId);
     }
@@ -33,7 +37,10 @@ export namespace AuthApi {
   }
 
   export const signUp = async (data: SignUpReq) => {
-    const res = await api.post<SignUpRes>("/auth/sign-up", data);
+    // const res = await api.post<SignUpRes>("/auth/sign-up", data);
+    const res = {
+      data: registerRes,
+    };
     if (res.data.userId) {
       localStorage.setItem("userId", res.data.userId);
     }
