@@ -9,15 +9,14 @@ export namespace AuthApi {
   export interface SignInRes {
     status: boolean;
     message?: string;
-    data: {
-      userId: string;
-      username: string;
-      email: string;
-    } | null;
+    userId: string | null;
   }
 
   export const signIn = async (data: SignInReq) => {
     const res = await api.post<SignInRes>("/auth/sign-in", data);
+    if (res.data.userId) {
+      localStorage.setItem("userId", res.data.userId);
+    }
     return res.data;
   };
 
@@ -30,15 +29,14 @@ export namespace AuthApi {
   export interface SignUpRes {
     status: boolean;
     message?: string;
-    data: {
-      userId: string;
-      username: string;
-      email: string;
-    } | null;
+    userId: string | null;
   }
 
   export const signUp = async (data: SignUpReq) => {
     const res = await api.post<SignUpRes>("/auth/sign-up", data);
+    if (res.data.userId) {
+      localStorage.setItem("userId", res.data.userId);
+    }
     return res.data;
   };
 }

@@ -20,7 +20,11 @@ export enum PARTICIPANT_ROLE {
 
 export enum PARTICIPANT_STATUS {
   ACTIVE = "ACTIVE",
-  DISCONNECTED = "DISCONNECTED"
+  DISCONNECTED = "DISCONNECTED",
 }
 
-
+export interface CurrentUser {
+  userId: string;
+  username: string;
+  email: string;
+}
