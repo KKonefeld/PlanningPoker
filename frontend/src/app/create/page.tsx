@@ -103,11 +103,11 @@ export default function CreateForm() {
           name="username"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Room's name</FormLabel>
+              <FormLabel>Room&apos;s name</FormLabel>
               <FormControl>
                 <Input placeholder="Example name" {...field} />
               </FormControl>
-              <FormDescription>This is room's public name.</FormDescription>
+              <FormDescription>This is room&apos;s public name.</FormDescription>
               <FormMessage />
             </FormItem>
           )}
