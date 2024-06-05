@@ -1,7 +1,7 @@
 import { Participant, VOTING_SYSTEM } from "@/model/user";
 import { api } from "./client";
 import { Room } from "@/model/room";
-import { rooms } from "@/api-mock-data/room-data";
+//import { rooms } from "@/api-mock-data/room-data";
 import { TParticipant } from "@/app/room/[roomId]/participants";
 
 export namespace RoomApi {
