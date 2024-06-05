@@ -73,7 +73,9 @@ const UsCardDialog: React.FC<Props> = ({
         taskDescRef.current.value,
       );
       setTimeout(() => {
-        queryClient.invalidateQueries(userStoryKeys.userStory(data.id));
+        queryClient.invalidateQueries({
+          queryKey: userStoryKeys.userStory(data.id),
+        });
       }, 500);
     }
   };
@@ -93,11 +95,10 @@ const UsCardDialog: React.FC<Props> = ({
       );
     }
 
-    queryClient.invalidateQueries(
-      queryClient.invalidateQueries(userStoryKeys.userStories(roomId)),
-    );
-
-    setIsOpen(false);
+    queryClient.invalidateQueries({
+      queryKey: userStoryKeys.userStories(roomId),
+    }),
+      setIsOpen(false);
   };
 
   return (
