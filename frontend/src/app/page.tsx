@@ -13,7 +13,10 @@ export default function Home() {
   const router = useRouter();
   const setUser = useUserStore((state) => state.setUser);
   const user = useUserStore((state) => state.user);
-  const userId = localStorage.getItem("userId");
+  let userId = null;
+  if(typeof window !== 'undefined'){
+    userId = localStorage.getItem('userId');
+  }
   const { data, isLoading, isError, error } = useUserHistoryQuery();
 
   const getCurrentUser = async () => {
@@ -29,9 +32,7 @@ export default function Home() {
     getCurrentUser();
   }, []);
 
-  if (!userId) return null;
-
-  if (isLoading) {
+  if (isLoading || !userId) {
     return (
       <div>
         <h1>Loading...</h1>
@@ -69,7 +70,7 @@ export default function Home() {
       </h1>
       <div className="w-full">
         {data.map((room) => (
-          <div className="w-full flex-row pb-8">
+          <div className="w-full flex-row pb-8" key={room.id}>
             <h2>{room.name}</h2>
             <p className="mb-4 text-lg font-semibold">
               Voting System: {room.votingSystem}
