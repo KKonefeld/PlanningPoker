@@ -153,4 +153,69 @@ export const currentUserHistory: RoomHistory[] = [
       },
     ],
   },
+  {
+    createdAt: new Date(),
+    id: 2,
+    name: "Room 2",
+    votingSystem: VOTING_SYSTEM.FIBONACCI,
+    userStories: [
+      {
+        description: "User story description",
+        id: 1,
+        tasks: [
+          {
+            description: "Task description",
+            id: 1,
+            title: "Task 1",
+            votingResult: "1",
+          },
+          {
+            description: "Task description",
+            id: 2,
+            title: "Task 2",
+            votingResult: "2",
+          },
+        ],
+        title: "User story 1",
+      },
+      {
+        description: "User story description",
+        id: 2,
+        tasks: [
+          {
+            description: "Task description",
+            id: 1,
+            title: "Task 1",
+            votingResult: "1",
+          },
+        ],
+        title: "User story 2",
+      },
+      {
+        description: "User story description",
+        id: 3,
+        tasks: [
+          {
+            description: "Task description",
+            id: 1,
+            title: "Task 1",
+            votingResult: "1",
+          },
+          {
+            description: "Task description",
+            id: 2,
+            title: "Task 2",
+            votingResult: "2",
+          },
+          {
+            description: "Task description",
+            id: 3,
+            title: "Task 3",
+            votingResult: "3",
+          },
+        ],
+        title: "User story 3",
+      },
+    ],
+  },
 ];
