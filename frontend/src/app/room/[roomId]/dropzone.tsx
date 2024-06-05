@@ -15,7 +15,7 @@ const DropzoneComponent: React.FC = () => {
   const [csvData, setCsvData] = useState<any[]>([]); // State to store CSV data
   const [csvFile, setCsvFile] = useState<File | null>(null);
   const [modalVisible, setModalVisible] = useState(false); // State to manage modal visibility
-  const tableRef = useRef<HTMLTableElement>(null);
+  const tableRef = useRef<HTMLDivElement>(null);
 
   const handleFileDrop = (acceptedFiles: any[]) => {
     const selectedFile = acceptedFiles[0];
@@ -146,7 +146,7 @@ const DropzoneComponent: React.FC = () => {
             <div className="dropzone-inner flex cursor-pointer flex-col items-center justify-center rounded-md border-2 border-dashed border-gray-300 px-4 py-8 hover:border-gray-500">
               <input {...getInputProps()} />
               <p className="dropzone-prompt mt-4 text-center text-gray-500">
-                Drag 'n' drop a CSV file from JIRA here, or click to select
+                Drag and drop a CSV file from JIRA here, or click to select
               </p>
               {isUploadSuccessful && (
                 <div className="checkmark-container mt-4">
@@ -196,12 +196,13 @@ const DropzoneComponent: React.FC = () => {
         ]}
         width={modalWidth || "auto"} // Use modal state or 'auto'
       >
-        <Table
-          dataSource={mappedData}
-          pagination={false}
-          columns={tableColumns}
-          ref={tableRef}
-        />
+        <div ref={tableRef}>
+          <Table
+            dataSource={mappedData}
+            pagination={false}
+            columns={tableColumns}
+          />
+        </div>
       </Modal>
     </div>
   );
