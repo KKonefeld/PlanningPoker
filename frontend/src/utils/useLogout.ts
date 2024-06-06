@@ -12,7 +12,7 @@ export function useLogout() {
     useUserStore.getState().setUser(null);
     queryClient.clear();
     router.push("/login");
-  }, [queryClient]);
+  }, [queryClient, router]);
 
   return logout;
 }
