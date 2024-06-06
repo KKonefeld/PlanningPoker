@@ -19,7 +19,7 @@ namespace PlanningPoker
                 options.AddPolicy(name: myAllowSpecificOrigins,
                     policy =>
                     {
-                        policy.WithOrigins("http://localhost:3000")
+                        policy.WithOrigins()
                             .AllowAnyMethod()
                             .AllowAnyHeader()
                             .AllowCredentials();

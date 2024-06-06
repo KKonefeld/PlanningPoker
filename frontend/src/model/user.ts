@@ -1,3 +1,5 @@
+import { UserStory } from "./userstory";
+
 export enum VOTING_SYSTEM {
   FIBONACCI = "FIBONACCI",
   TSHIRTS = "TSHIRTS",
@@ -20,7 +22,19 @@ export enum PARTICIPANT_ROLE {
 
 export enum PARTICIPANT_STATUS {
   ACTIVE = "ACTIVE",
-  DISCONNECTED = "DISCONNECTED"
+  DISCONNECTED = "DISCONNECTED",
 }
 
+export interface CurrentUser {
+  userId: string;
+  username: string;
+  email: string;
+}
 
+export interface RoomHistory {
+  id: number;
+  name: string;
+  createdAt: Date;
+  votingSystem: VOTING_SYSTEM;
+  userStories: UserStory[];
+}
