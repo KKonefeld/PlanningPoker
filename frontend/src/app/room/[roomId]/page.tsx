@@ -4,7 +4,7 @@ import {
   useJoinRoomMutation,
   useRoomDetailsQuery,
 } from "@/queries/room.queries";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import * as signalR from "@microsoft/signalr";
 import NicknameForm from "./nicknameForm";
 import Participants, { TParticipant } from "./participants";
@@ -36,10 +36,10 @@ export default function Room({
   const roomId = Number(params.roomId);
   const [isCopied, setIsCopied] = useState(false);
   const [userNickname, setUserNickname] = useState<string | null>(null);
-  const [connection, setConnection] = useState(
+  const [connection, setConnection] = useState(() =>
     new signalR.HubConnectionBuilder()
       .withUrl("https://localhost:7008/roomHub")
-      .build(),
+      .build()
   );
 
   const [gameState, setGameState] = useState<string>("");
@@ -50,7 +50,7 @@ export default function Room({
 
   const [votedTask, setVotedTask] = useState<UserStoryTask | null>(null);
   const [votedTaskEstimation, setVotedTaskEstimation] = useState<string | null>(
-    null,
+    null
   );
 
   const router = useRouter();
@@ -76,129 +76,128 @@ export default function Room({
     });
 
     console.log(connection);
-  }, []);
+  }, [connection, joinRoomMutation, roomId, userNickname]);
 
-  // todo: wsadzić 'https://localhost:7008/' w consta gdzieś
-  useEffect(() => {
+  const startConnection = useCallback(async () => {
     if (!userNickname) return;
     setVotedTask(null);
-    const startConnection = async () => {
-      try {
-        console.log("SignalR Connected");
+    try {
+      console.log("SignalR Connected");
 
-        connection.on("NoRoomInRoom", async () => {
-          router.push("/rooms");
-        });
+      connection.on("NoRoomInRoom", async () => {
+        router.push("/rooms");
+      });
 
-        connection.on("UserJoined", async (participantName) => {
-          console.log(`${participantName} joined the room!`);
-        });
+      connection.on("UserJoined", async (participantName) => {
+        console.log(`${participantName} joined the room!`);
+      });
 
-        connection.on("UserLeft", async (participantName) => {
-          console.log(`${participantName} left the room.`);
-        });
+      connection.on("UserLeft", async (participantName) => {
+        console.log(`${participantName} left the room.`);
+      });
 
-        connection.on("VoteSubmitted", async (participantName) => {
-          console.log(`${participantName} submitted vote.`);
-        });
+      connection.on("VoteSubmitted", async (participantName) => {
+        console.log(`${participantName} submitted vote.`);
+      });
 
-        connection.on("VoteWithdrawn", async (participantName) => {
-          console.log(`${participantName} withdrawn their vote.`);
-        });
+      connection.on("VoteWithdrawn", async (participantName) => {
+        console.log(`${participantName} withdrawn their vote.`);
+      });
 
-        connection.on("EveryoneVoted", async (bool) => {
-          console.log(`Voting ready to finish: ${bool}.`);
-          if (bool) {
-            setGameState("finished");
-          }
-        });
+      connection.on("EveryoneVoted", async (bool) => {
+        console.log(`Voting ready to finish: ${bool}.`);
+        if (bool) {
+          setGameState("finished");
+        }
+      });
 
-        connection.on("VotingState", async (votingState) => {
-          console.log("votingstate:", votingState);
-          setParticipants(votingState);
-          console.log("connection:", connection);
-        });
+      connection.on("VotingState", async (votingState) => {
+        console.log("votingstate:", votingState);
+        setParticipants(votingState);
+        console.log("connection:", connection);
+      });
 
-        connection.on("VotingResults", async (votingResults) => {
-          console.log(votingResults);
-          setParticipants(votingResults);
-        });
+      connection.on("VotingResults", async (votingResults) => {
+        console.log(votingResults);
+        setParticipants(votingResults);
+      });
 
-        connection.on("UserStoryAdded", async (userStories) => {
-          setUserStories(userStories);
-        });
+      connection.on("UserStoryAdded", async (userStories) => {
+        setUserStories(userStories);
+      });
 
-        connection.on("CreatingUserStoryFailed", async (userStories) => {
-          // todo: wyświetlić alert o błędzie
-          console.log("Creating user story failed");
-        });
+      connection.on("CreatingUserStoryFailed", async (userStories) => {
+        // todo: wyświetlić alert o błędzie
+        console.log("Creating user story failed");
+      });
 
-        // todo: przyciski do edycji i usuwania user story
-        connection.on("UserStoryUpdated", async (userStories) => {
-          setUserStories(userStories);
-        });
+      // todo: przyciski do edycji i usuwania user story
+      connection.on("UserStoryUpdated", async (userStories) => {
+        setUserStories(userStories);
+      });
 
-        connection.on("UpdatingUserStoryFailed", async () => {
-          // todo: wyświetlić alert o błędzie
-          console.log("Updating user story failed");
-        });
+      connection.on("UpdatingUserStoryFailed", async () => {
+        // todo: wyświetlić alert o błędzie
+        console.log("Updating user story failed");
+      });
 
-        connection.on("UserStoryDeleted", async (userStories) => {
-          setUserStories(userStories);
-        });
+      connection.on("UserStoryDeleted", async (userStories) => {
+        setUserStories(userStories);
+      });
 
-        connection.on("DeletingUserStoryFailed", async () => {
-          // todo: wyświetlić alert o błędzie
-          console.log("Deleting user story failed");
-        });
+      connection.on("DeletingUserStoryFailed", async () => {
+        // todo: wyświetlić alert o błędzie
+        console.log("Deleting user story failed");
+      });
 
-        connection.on("UserStoryTaskCreated", async (userStories) => {
-          setUserStories(userStories);
-        });
+      connection.on("UserStoryTaskCreated", async (userStories) => {
+        setUserStories(userStories);
+      });
 
-        connection.on("CreatingUserStoryTaskFailed", async () => {
-          // todo: wyświetlić alert o błędzie
-          console.log("Creating user story task failed");
-        });
+      connection.on("CreatingUserStoryTaskFailed", async () => {
+        // todo: wyświetlić alert o błędzie
+        console.log("Creating user story task failed");
+      });
 
-        connection.on("UserStoryTaskUpdated", async (userStories) => {
-          setUserStories(userStories);
-        });
+      connection.on("UserStoryTaskUpdated", async (userStories) => {
+        setUserStories(userStories);
+      });
 
-        connection.on("UpdatingUserStoryTaskFailed", async () => {
-          // todo: wyświetlić alert o błędzie
-          console.log("Updating user story task failed");
-        });
+      connection.on("UpdatingUserStoryTaskFailed", async () => {
+        // todo: wyświetlić alert o błędzie
+        console.log("Updating user story task failed");
+      });
 
-        connection.on("UserStoryTaskDeleted", async (userStories) => {
-          setUserStories(userStories);
-        });
+      connection.on("UserStoryTaskDeleted", async (userStories) => {
+        setUserStories(userStories);
+      });
 
-        connection.on("DeletingUserStoryTaskFailed", async () => {
-          // todo: wyświetlić alert o błędzie
-          console.log("Deleting user story task failed");
-        });
+      connection.on("DeletingUserStoryTaskFailed", async () => {
+        // todo: wyświetlić alert o błędzie
+        console.log("Deleting user story task failed");
+      });
 
-        connection.on("VotingStart", async (task) => {
-          setVotedTask(task);
-          setVotedTaskEstimation(null);
-        });
+      connection.on("VotingStart", async (task) => {
+        setVotedTask(task);
+        setVotedTaskEstimation(null);
+      });
 
-        connection.on("TaskEstimation", async (taskEstimation) => {
-          setVotedTaskEstimation(taskEstimation);
-          await submitVoteHandle(null);
-        });
+      connection.on("TaskEstimation", async (taskEstimation) => {
+        setVotedTaskEstimation(taskEstimation);
+        await submitVoteHandle(null);
+      });
 
-        await connection.start();
+      await connection.start();
 
-        await connection.invoke("JoinRoom", roomId, userNickname);
-      } catch (error) {
-        console.error("SignalR Connection Error:", error);
-      }
-    };
+      await connection.invoke("JoinRoom", roomId, userNickname);
+    } catch (error) {
+      console.error("SignalR Connection Error:", error);
+    }
+  }, [connection, roomId, router, userNickname]);
 
+  useEffect(() => {
     startConnection();
-  }, [roomId, userNickname]);
+  }, [startConnection]);
 
   useEffect(() => {
     return () => {
@@ -228,11 +227,11 @@ export default function Room({
           .stop()
           .then(() => console.log("SignalR connection stopped"))
           .catch((error) =>
-            console.error("Error stopping SignalR connection:", error),
+            console.error("Error stopping SignalR connection:", error)
           );
       }
     };
-  }, []);
+  }, [connection]);
 
   const { data, isLoading, isError, error } = useRoomDetailsQuery(roomId);
 
@@ -244,7 +243,7 @@ export default function Room({
       roomId,
       userNickname,
       value,
-      votedTask?.id,
+      votedTask?.id
     );
   };
 
@@ -263,7 +262,7 @@ export default function Room({
   const updateUserStoryHandle = async (
     userStoryId: number,
     title: string,
-    description: string,
+    description: string
   ) => {
     if (!connection) return;
     await connection
@@ -271,7 +270,7 @@ export default function Room({
       .then(() =>
         queryClient.invalidateQueries({
           queryKey: userStoryKeys.userStories(roomId),
-        }),
+        })
       );
   };
 
@@ -280,14 +279,14 @@ export default function Room({
     await connection.invoke("DeleteUserStory", roomId, userStoryId).then(() =>
       queryClient.invalidateQueries({
         queryKey: userStoryKeys.userStories(roomId),
-      }),
+      })
     );
   };
 
   const createUserStoryTaskHandle = async (
     userStoryId: number,
     title: string,
-    description: string,
+    description: string
   ) => {
     if (!connection) return;
     await connection.invoke(
@@ -295,14 +294,14 @@ export default function Room({
       roomId,
       userStoryId,
       title,
-      description,
+      description
     );
   };
 
   const updateUserStoryTaskHandle = async (
     userStoryTaskId: number,
     title: string,
-    description: string,
+    description: string
   ) => {
     if (!connection) return;
     await connection.invoke(
@@ -310,7 +309,7 @@ export default function Room({
       roomId,
       userStoryTaskId,
       title,
-      description,
+      description
     );
   };
 
