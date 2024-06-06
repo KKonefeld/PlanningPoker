@@ -8,13 +8,13 @@ import { useRef, useState } from "react";
 type Props = {
   data: UserStoryTask;
   isEditing: boolean;
-  deleteUserStoryTaskHandle: (id: number) => void;
-  updateUserStoryTaskHandle: (
+  deleteUserStoryTaskHandle?: (id: number) => void;
+  updateUserStoryTaskHandle?: (
     id: number,
     title: string,
     description: string,
   ) => void;
-  setVotedTaskHandle: (task: UserStoryTask) => void;
+  setVotedTaskHandle?: (task: UserStoryTask) => void;
 };
 
 const UsTask: React.FC<Props> = ({
@@ -30,7 +30,7 @@ const UsTask: React.FC<Props> = ({
 
   const handleUpdateTask = () => {
     if (titleRef.current && descRef.current) {
-      updateUserStoryTaskHandle(
+      updateUserStoryTaskHandle?.(
         data.id,
         titleRef.current.value,
         descRef.current.value,
@@ -67,7 +67,10 @@ const UsTask: React.FC<Props> = ({
                 <Button
                   size="action"
                   variant="destructive"
-                  onClick={() => deleteUserStoryTaskHandle(data.id)}
+                  onClick={() =>
+                    deleteUserStoryTaskHandle &&
+                    deleteUserStoryTaskHandle(data.id)
+                  }
                 >
                   <Trash2 />
                 </Button>
@@ -77,8 +80,13 @@ const UsTask: React.FC<Props> = ({
               </>
             ) : null}
           </div>
+        ) : data.votingResult ? (
+          <p className="font-semibold">Voting result: {data.votingResult}</p>
         ) : (
-          <Button size="sm" onClick={() => setVotedTaskHandle(data)}>
+          <Button
+            size="sm"
+            onClick={() => setVotedTaskHandle && setVotedTaskHandle(data)}
+          >
             Vote
           </Button>
         )}
