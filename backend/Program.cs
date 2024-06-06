@@ -19,7 +19,7 @@ namespace PlanningPoker
                 options.AddPolicy(name: myAllowSpecificOrigins,
                     policy =>
                     {
-                        policy.WithOrigins()
+                        policy.AllowAnyOrigin()
                             .AllowAnyMethod()
                             .AllowAnyHeader()
                             .AllowCredentials();

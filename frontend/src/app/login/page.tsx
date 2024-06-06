@@ -87,7 +87,7 @@ export default function Login() {
           </form>
         </Form>
         <div className="mt-16">
-          <p className="mb-2 text-center font-medium">Don't have an account?</p>
+          <p className="mb-2 text-center font-medium">Don&apos;t have an account?</p>
           <Link href="/register">
             <Button type="button" className="w-full">
               Register

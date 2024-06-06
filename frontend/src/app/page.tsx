@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { useUserStore } from "@/stores/user-store";
-import { useEffect } from "react";
+import { useEffect, useCallback } from "react";
 import { UserApi } from "@/api/user-api";
 import { useRouter } from "next/navigation";
 import { useUserHistoryQuery } from "@/queries/user.queries";
@@ -14,23 +14,23 @@ export default function Home() {
   const setUser = useUserStore((state) => state.setUser);
   const user = useUserStore((state) => state.user);
   let userId = null;
-  if(typeof window !== 'undefined'){
+  if (typeof window !== 'undefined') {
     userId = localStorage.getItem('userId');
   }
   const { data, isLoading, isError, error } = useUserHistoryQuery();
 
-  const getCurrentUser = async () => {
+  const getCurrentUser = useCallback(async () => {
     if (userId) {
       const res = await UserApi.getCurrentUser();
       setUser(res);
     } else {
       router.push("/login");
     }
-  };
+  }, [router, setUser, userId]);
 
   useEffect(() => {
     getCurrentUser();
-  }, []);
+  }, [getCurrentUser]);
 
   if (isLoading || !userId) {
     return (
